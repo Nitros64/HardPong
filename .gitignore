@@ -1,0 +1,25 @@
+# MonoGame - Ignorar archivos generados
+bin/
+obj/
+*.suo
+*.user
+*.log
+*.tmp
+*.pidb
+*.pdb
+*.sdf
+*.db-shm
+*.db-wal
+*.db-journal
+*.vs/
+.vscode/
+*.DS_Store
+Thumbs.db
+
+# Configuración de IDEs
+.idea/
+*.iml
+
+# MonoGame Content Pipeline - Se sube solo la fuente, no el compilado
+Content/bin/
+Content/obj/
