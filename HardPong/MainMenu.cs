@@ -96,8 +96,10 @@ public class MainMenu : DrawableGameComponent {
     {
         checkMainMenuKey(Game.Window.ClientBounds);
         music_loop();
-        foreach (Sprite s in _randomBalls)            
-            s.Update(gameTime, Game.Window.ClientBounds); 
+        _scaleChanger.Advance();
+        _colorChanger.Advance();
+        foreach (Sprite s in _randomBalls)
+            s.Update(gameTime, Game.Window.ClientBounds);
     }
 
     public override void Draw(GameTime gameTime)
@@ -108,9 +110,9 @@ public class MainMenu : DrawableGameComponent {
             s.Draw(gameTime, _spriteBatch);
 
         _spriteBatch.DrawString(_nesFont, Title, new Vector2(12, 150),
-                                _colorChanger.VisualEffect(), 0,
-                                Vector2.Zero, 
-                                _scaleChanger.VisualEffect(), 
+                                _colorChanger.Current, 0,
+                                Vector2.Zero,
+                                _scaleChanger.Current,
                                 SpriteEffects.None, 0);
 
         _menuSimple.Draw(gameTime, _spriteBatch);

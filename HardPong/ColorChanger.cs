@@ -20,11 +20,15 @@ public class ColorChanger
         _setColors = [.. setColors];
     }
 
-    public Color VisualEffect() {
-        if (++_cont <= _time) return _setColors[_colorIndex];
+    public Color Current => _setColors[_colorIndex];
+
+    // Avanza el ciclo; llamar desde Update, no desde Draw
+    public void Advance()
+    {
+        if (++_cont <= _time)
+            return;
         ColorSwitch();
         _cont = 0;
-        return _setColors[_colorIndex];
     }
 
     private void ColorSwitch()

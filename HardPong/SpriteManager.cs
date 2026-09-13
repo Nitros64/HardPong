@@ -235,8 +235,15 @@ public class SpriteManager : DrawableGameComponent {
     }
     
     public override void Update(GameTime gameTime)
-    {   
+    {
         _keyboardInput.CheckKeyboardInput();
+        if (_gameState.GetGameState() == GameStates.Stop)
+        {
+            // Los efectos de fin de partida solo se muestran en Stop: avanzan solo alli
+            _scWinScale.Advance();
+            _scScoreScale.Advance();
+            _ccWinnerColor.Advance();
+        }
         if (_gameState.GetGameState() == GameStates.Playing)// If the user hasn't paused, Update normally
         {
             //Update movement
@@ -300,9 +307,9 @@ public class SpriteManager : DrawableGameComponent {
 
         if (_gameState.GetGameState() == GameStates.Stop)
         {
-            var winner_color = _ccWinnerColor.VisualEffect();
-            winScale    = _scWinScale.VisualEffect(); //Cambia la escala cada 10 segundos (0.6f, 0.57f)
-            score_scale  = _scScoreScale.VisualEffect(); //Cambia la escala cada 10 segundos(1.0f, 1.2f)
+            Color winner_color = _ccWinnerColor.Current;
+            winScale    = _scWinScale.Current;  //Alterna cada 10 frames (0.6f, 0.57f)
+            score_scale = _scScoreScale.Current; //Alterna cada 10 frames (1.0f, 1.2f)
 
             if (PlayerWinner >= 1) {
                 spriteBatch.DrawString(_greatScore, "PLAYER " + PlayerWinner + "\n WINS",

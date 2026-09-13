@@ -9,13 +9,15 @@ public class ScaleChanger(int time, float scale1, float scale2)
     private readonly float _scale1 = scale1;
     private int _cont;
 
-    public float VisualEffect()
+    public float Current => _scale;
+
+    // Avanza el ciclo; llamar desde Update, no desde Draw
+    public void Advance()
     {
         if (++_cont <= time)
-            return _scale;
+            return;
         ScaleSwitch();
         _cont = 0;
-        return _scale;
     }
     private void ScaleSwitch()
     {
