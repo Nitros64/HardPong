@@ -30,8 +30,8 @@ internal class CollisionBallPaddle : IBallPaddleCollision
 				ball.SoundBrick();
 			}
 
-			if (rectBall.Y + rectBall.Width >= rectPaddle.Y && rectBall.Y + rectBall.Width < rectPaddle.Y + 10) // 7 es el original
-				ball.SpritePosition = new Vector2(rectBall.X, rectPaddle.Y - rectBall.Width);
+			if (rectBall.Y + rectBall.Height >= rectPaddle.Y && rectBall.Y + rectBall.Height < rectPaddle.Y + 10) // 7 es el original
+				ball.SpritePosition = new Vector2(rectBall.X, rectPaddle.Y - rectBall.Height);
 			else if (rectBall.Y < rectPaddle.Y + rectPaddle.Height && rectBall.Y >= rectPaddle.Y + rectPaddle.Height - 10)
 				ball.SpritePosition = new Vector2(rectBall.X, rectPaddle.Y + rectPaddle.Height);
 
