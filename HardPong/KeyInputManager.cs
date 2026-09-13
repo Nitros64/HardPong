@@ -19,13 +19,18 @@ internal class KeyInputManager
     }
 
     public void Begin() {
-        _newKeyState = Keyboard.GetState(); // Solo una llamada
+        var currentKeyState = Keyboard.GetState();
         if (_firstTime) {
-            if (_triggers.Any(_newKeyState.IsKeyDown))
+            // Periodo de gracia tras Exit(): mientras haya una tecla disparadora
+            // pulsada, _newKeyState NO se actualiza, de forma que la pulsacion
+            // que provoco el cambio de estado/menu no dispare un borde fantasma
+            // al llegar al siguiente consumidor.
+            if (_triggers.Any(currentKeyState.IsKeyDown))
                 return;
 
             _firstTime = false;
         }
+        _newKeyState = Keyboard.GetState();
     }
 
     public bool CheckPressedKey(Keys key) {
