@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 namespace HardPong.Dependencies;
 class CollisionPaddleWall : ISpriteCollisionEnvironment
 {
-    public void SpriteCollisionEnviroment(Sprite s1, Rectangle clientBounds)
+    public void SpriteCollisionEnvironment(Sprite s1, Rectangle clientBounds)
     {
         if (s1.PositionY <= 0)
             s1.PositionY = 0;

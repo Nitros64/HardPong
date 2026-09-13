@@ -9,7 +9,7 @@ internal class CollisionDetector(
     ISpriteCollisionEnvironment scwBallWall,
     ISpriteCollisionEnvironment scwPaddleWall)
 {
-    //Collition Interfaces
+    //Collision Interfaces
     //Ball and Paddle Handler
     //Ball Handler
     //Paddle Handler
@@ -19,11 +19,11 @@ internal class CollisionDetector(
     }
 
     public void collision_ball_wall(Ball refBall,Rectangle clientBounds) {
-        scwBallWall.SpriteCollisionEnviroment(refBall,clientBounds);
+        scwBallWall.SpriteCollisionEnvironment(refBall,clientBounds);
     }
 
     public void collision_paddle_wall(Paddle refPaddle,Rectangle clientBounds)
     {
-        scwPaddleWall.SpriteCollisionEnviroment(refPaddle,clientBounds);
+        scwPaddleWall.SpriteCollisionEnvironment(refPaddle,clientBounds);
     }
 }

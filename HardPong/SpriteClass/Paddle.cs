@@ -24,12 +24,6 @@ internal class Paddle : Sprite
         : base(textureImage, position, frameSize, collisionOffset, currentFrame,
         sheetSize, speed){}
 
-    public Paddle(Texture2D textureImage, Vector2 position,
-        Point frameSize, int collisionOffset, Point currentFrame, Point sheetSize,
-        Vector2 speed, int millisecondsPerFrame)
-        : base(textureImage, position, frameSize, collisionOffset, currentFrame,
-        sheetSize, speed, millisecondsPerFrame){}
-
     public override void Update()
     {
         _paddleInputMovement.CheckKeyboardInput();

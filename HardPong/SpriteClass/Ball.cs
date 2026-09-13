@@ -21,17 +21,7 @@ public class Ball : Sprite {
         : base(textureImage, position, frameSize, collisionOffset, currentFrame,
         sheetSize, speed)
     {
-        this.SetScale(MyScale);
-        Winner = PlayerNumber.NoOne;
-    }
-
-    public Ball(Texture2D textureImage, Vector2 position, Point frameSize,
-        int collisionOffset, Point currentFrame, Point sheetSize, Vector2 speed,
-        int millisecondsPerFrame)
-        : base(textureImage, position, frameSize, collisionOffset, currentFrame,
-        sheetSize, speed, millisecondsPerFrame)
-    {
-        this.SetScale(MyScale);
+        SetScale(MyScale);
         Winner = PlayerNumber.NoOne;
     }
 
@@ -115,11 +105,6 @@ public class Ball : Sprite {
         else
             Speed.Y = y;
         
-    }
-
-    public void DefaultDirection() {
-        Speed.X = BallSpeedX;
-        Speed.Y = BallSpeedY;
     }
 
     public void ChangeDirection() {

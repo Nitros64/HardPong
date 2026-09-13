@@ -5,6 +5,6 @@ namespace HardPong.Interfaces;
 
 internal interface ISpriteCollisionEnvironment
 {
-    void SpriteCollisionEnviroment(Sprite s1, Rectangle r2);
+	void SpriteCollisionEnvironment(Sprite s1, Rectangle r2);
 }
 

@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace HardPong.SpriteClass;
-public class Sprite {        
+public class Sprite {
     // Stuff needed to draw the sprite
     protected readonly Texture2D TextureImage; //Sprite or sprite sheet of image being drawn
     private readonly Point _frameSize; //Size of each individual frame in sprite sheet
@@ -14,11 +14,6 @@ public class Sprite {
     // Collision data
     private readonly int _collisionOffset; //Offset used to modify frame-size rectangle for collision checks against this sprite
 
-    // Framerate stuff
-    private readonly int _timeSinceLastFrame = 0; //Number of milliseconds since last frame was drawn
-    private int _millisecondsPerFrame; //Number of milliseconds to wait between frame changes
-    private const int DefaultMillisecondsPerFrame = 16;
-
     // Movement data
     protected Vector2 Speed; //Speed at which sprite will move in both X and Y directions
     protected Vector2 Position; //Position at which to draw sprite
@@ -28,20 +23,8 @@ public class Sprite {
 
     private ISpriteAutomaticMovement _spriteSoloMovement;
 
-    public Sprite() { }
-
-    public Sprite(Texture2D textureImage, Vector2 position, Point frameSize, int collisionOffset, 
-          Point currentFrame, Point sheetSize, Vector2 speed)
-        : this(textureImage, position, frameSize, collisionOffset, currentFrame,sheetSize, 
-          speed, DefaultMillisecondsPerFrame)
-    {
-        SetColor(Color.White);
-        this.SetRotation(0);
-    }
-
     public Sprite(Texture2D textureImage, Vector2 position, Point frameSize,
-        int collisionOffset, Point currentFrame, Point sheetSize, Vector2 speed,
-        int millisecondsPerFrame)
+        int collisionOffset, Point currentFrame, Point sheetSize, Vector2 speed)
     {
         TextureImage = textureImage;
         Position = position;
@@ -50,7 +33,6 @@ public class Sprite {
         _currentFrame = currentFrame;
         _sheetSize = sheetSize;
         Speed = speed;
-        _millisecondsPerFrame = millisecondsPerFrame;
         SetColor(Color.White);
         SetRotation(0);
     }
@@ -100,11 +82,11 @@ public class Sprite {
                                        _currentFrame.Y * _frameSize.Y,
                                        _frameSize.X, _frameSize.Y
                                        ),
-                                       _spriteColor, 
+                                       _spriteColor,
                                        _rotation,
                                        Vector2.Zero,
-                                       _scale, 
-                                       SpriteEffects.None, 
+                                       _scale,
+                                       SpriteEffects.None,
                                        0);
     }
 

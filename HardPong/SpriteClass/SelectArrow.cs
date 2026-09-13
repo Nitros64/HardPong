@@ -9,8 +9,6 @@ public class SelectArrow : Sprite
     //Triangulo de seleccion
     private readonly SoundEffect _soundArrow;
    
-    public SelectArrow() {
-    }
     public SelectArrow(Texture2D textureImage, Vector2 position, SoundEffect soundTriangle)
         : base(textureImage, position, new Point(0, 0), 0, new Point(0, 0),
                 new Point(0, 0), new Vector2(0, 0))

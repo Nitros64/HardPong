@@ -20,13 +20,13 @@ public class MainMenu : DrawableGameComponent {
 
     //Fuentes para las letras
     private SpriteFont _nesFont, _nesFont2;
-    private const string Tittle = "HARD PONG";
-    private readonly string[] _opcions = { "PLAYER VS PLAYER",
+    private const string Title = "HARD PONG";
+    private readonly string[] _options = { "PLAYER VS PLAYER",
                                  "PLAYER VS PC",
                                  "CREDITS",
                                  "EXIT" };
 
-    private const string ProgramedBy = "PROGRAMED BY: NITROS64";
+    private const string ProgrammedBy = "PROGRAMED BY: NITROS64";
     private readonly MenuSimple _menuSimple;
     //Musica
     private Song _music;
@@ -42,7 +42,7 @@ public class MainMenu : DrawableGameComponent {
         Vector2 menuPosition = new Vector2(game.Window.ClientBounds.Width / 2 - 110, 
                                            game.Window.ClientBounds.Height / 2 + 50);
             
-        _menuSimple = new MenuSimple(menuPosition, _opcions);
+        _menuSimple = new MenuSimple(menuPosition, _options);
         _menuSimple.InputManager.AddTriggerKeys(Keys.Enter);
         _scaleChanger = new ScaleChanger(10, 1.0f, 1.01f);
         _colorChanger = new ColorChanger(10, Color.White, Color.Yellow);
@@ -58,11 +58,11 @@ public class MainMenu : DrawableGameComponent {
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
-        _nesFont = Game.Content.Load<SpriteFont>(@"Font\NESfont");
-        _nesFont2 = Game.Content.Load<SpriteFont>(@"Font\NESfont2");            
+        _nesFont = Game.Content.Load<SpriteFont>(@"Font/NESfont");
+        _nesFont2 = Game.Content.Load<SpriteFont>(@"Font/NESfont2");            
             
         //Load Musica
-        _music = Game.Content.Load<Song>(@"Audio\dinothunder");
+        _music = Game.Content.Load<Song>(@"Audio/dinothunder");
         MediaPlayer.IsRepeating = true;
         MediaPlayer.Volume = 0.3f;
 
@@ -87,9 +87,9 @@ public class MainMenu : DrawableGameComponent {
             
         } // fin de for
         base.LoadContent();
-        _menuSimple.LoadContent(_gameEngine.Content.Load<SpriteFont>(@"Font\NESfont2"), 
-                               _gameEngine.Content.Load<Texture2D>(@"Images\triangulo"),
-                               _gameEngine.Content.Load<SoundEffect>(@"Audio\laser-shoot"));
+        _menuSimple.LoadContent(_gameEngine.Content.Load<SpriteFont>(@"Font/NESfont2"), 
+                               _gameEngine.Content.Load<Texture2D>(@"Images/triangulo"),
+                               _gameEngine.Content.Load<SoundEffect>(@"Audio/laser-shoot"));
     }
         
     public override void Update(GameTime gameTime)
@@ -107,7 +107,7 @@ public class MainMenu : DrawableGameComponent {
         foreach (Sprite s in _randomBalls)//Draw the balls
             s.Draw(gameTime, _spriteBatch);
 
-        _spriteBatch.DrawString(_nesFont, Tittle, new Vector2(12, 150), 
+        _spriteBatch.DrawString(_nesFont, Title, new Vector2(12, 150),
                                 _colorChanger.VisualEffect(), 0,
                                 Vector2.Zero, 
                                 _scaleChanger.VisualEffect(), 
@@ -115,7 +115,7 @@ public class MainMenu : DrawableGameComponent {
 
         _menuSimple.Draw(gameTime, _spriteBatch);
 
-        _spriteBatch.DrawString(_nesFont2, ProgramedBy,
+        _spriteBatch.DrawString(_nesFont2, ProgrammedBy,
             new Vector2(10, Game.Window.ClientBounds.Height - 30),
             Color.White);
 

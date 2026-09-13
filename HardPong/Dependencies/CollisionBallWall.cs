@@ -6,7 +6,7 @@ using static HardPong.SpriteClass.Ball;
 namespace HardPong.Dependencies;
 class CollisionBallWall : ISpriteCollisionEnvironment
 {
-    public void SpriteCollisionEnviroment(Sprite s1, Rectangle r2)
+    public void SpriteCollisionEnvironment(Sprite s1, Rectangle r2)
     {
         Ball mainBall = (Ball) s1;
         Rectangle rectball = mainBall.CollisionRect;

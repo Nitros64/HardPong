@@ -145,9 +145,9 @@ public class SpriteManager : DrawableGameComponent {
         LoadContentMusic(); //Load Musica       
         BuildCentralPaddles();//Build Central Lines
 
-        EscapeMenu.LoadContent(Game.Content.Load<SpriteFont>(@"Font\NESfont2"),
-                               Game.Content.Load<Texture2D>(@"Images\triangulo"),
-                               Game.Content.Load<SoundEffect>(@"Audio\laser-shoot"));
+        EscapeMenu.LoadContent(Game.Content.Load<SpriteFont>(@"Font/NESfont2"),
+                               Game.Content.Load<Texture2D>(@"Images/triangulo"),
+                               Game.Content.Load<SoundEffect>(@"Audio/laser-shoot"));
     }
     private void LoadContentSprites() {
         _player1PositionX = 10;
@@ -195,9 +195,9 @@ public class SpriteManager : DrawableGameComponent {
         _ball.SetColor(Color.Red);
         //La variable bola cargara sus sonidos correspondientes
         _ball.SoundDependencies(
-            new BallSound(Game.Content.Load<SoundEffect>(@"Audio\paddleSound")),
-            new BallSound(Game.Content.Load<SoundEffect>(@"Audio\wallSound")),
-            new BallSound(Game.Content.Load<SoundEffect>(@"Audio\cheer")) 
+            new BallSound(Game.Content.Load<SoundEffect>(@"Audio/paddleSound")),
+            new BallSound(Game.Content.Load<SoundEffect>(@"Audio/wallSound")),
+            new BallSound(Game.Content.Load<SoundEffect>(@"Audio/cheer")) 
             );
         _ball.SoloMovementDependency(new BallMain());
     }
@@ -205,15 +205,15 @@ public class SpriteManager : DrawableGameComponent {
     private void LoadContentFont()
     {
         //Load Fuente de Letras
-        _fontScore = Game.Content.Load<SpriteFont>(@"Font\NESfont2");
+        _fontScore = Game.Content.Load<SpriteFont>(@"Font/NESfont2");
         _score1 = 0;
         _score2 = 0;
-        _greatScore = Game.Content.Load<SpriteFont>(@"Font\NESfont");
+        _greatScore = Game.Content.Load<SpriteFont>(@"Font/NESfont");
     }  
 
     private void LoadContentMusic() {
         //Load Musica
-        _music = Game.Content.Load<Song>(@"Audio\inspace");            
+        _music = Game.Content.Load<Song>(@"Audio/inspace");            
         MediaPlayer.IsRepeating = true;
         MediaPlayer.Volume = 0.3f;
     }
@@ -336,7 +336,7 @@ public class SpriteManager : DrawableGameComponent {
     }
     
 
-    //GETTING FIENDS - ATRIBUTTES
+    //PROPERTIES
 
     public Ball GetBall() { return _ball;}
 

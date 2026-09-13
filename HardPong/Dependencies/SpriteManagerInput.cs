@@ -58,13 +58,13 @@ class SpriteManagerInput : IKeyboardInput
                     gsc.SetGameState(GameStates.Playing);
                     break;
                 case GameStates.Paused:
-                    gsc.Pause();//toogle betweent Playing and Paused
+                    gsc.Pause();//toggle between Playing and Paused
                     break;
                 case GameStates.Playing:
-                    gsc.Pause();//toogle betweent Playing and Paused
+                    gsc.Pause();//toggle between Playing and Paused
                     break;
                 case GameStates.Stop:
-                    gsc.Stop();//toogle
+                    gsc.Stop();//toggle
                     if (_spritemanager.PlayerWinner >= 1)
                         _spritemanager.Begin();                        
                     else{
