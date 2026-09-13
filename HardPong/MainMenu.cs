@@ -81,7 +81,7 @@ public class MainMenu : DrawableGameComponent {
                                 new Point(0, 0),
                                 new Point(0, 0),
                                 new Vector2(randomSpeedX, randomSpeedY));
-            addSprite.SoloMovementDependency(new BallSimple(addSprite,Game.Window.ClientBounds ));
+            addSprite.SoloMovementDependency(new BallSimple());
             addSprite.SetColor(Color.Yellow);
             _randomBalls.Add(addSprite);
             

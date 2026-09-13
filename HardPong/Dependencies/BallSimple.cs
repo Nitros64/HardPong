@@ -6,18 +6,13 @@ namespace HardPong.Dependencies;
 
 class BallSimple : ISpriteAutomaticMovement
 {
-    private readonly Sprite _s1;
-    private Rectangle _clientBounds1;
-    
-    public BallSimple(Sprite s, Rectangle clientBounds)
+    public BallSimple()
     {
-        _s1 = s;
-        _clientBounds1 = clientBounds;
     }
 
     public void AutomaticMovement(Sprite s)
     {
-       s.SpritePosition += s.Direction; 
+       s.SpritePosition += s.Direction;
     }
 
     public void AutomaticMovement(Sprite s, Rectangle clientBounds)
@@ -46,5 +41,5 @@ class BallSimple : ISpriteAutomaticMovement
             s.Direction = new Vector2(s.Direction.X, -s.Direction.Y);//speed.Y *= -1;
         }
     }
-    
+
 }
