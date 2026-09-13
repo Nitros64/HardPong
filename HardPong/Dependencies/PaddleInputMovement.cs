@@ -1,45 +1,28 @@
-﻿using HardPong.Interfaces;
-using HardPong.SpriteClass;
-using Microsoft.Xna.Framework;
+﻿using System;
+using HardPong.Interfaces;
 using Microsoft.Xna.Framework.Input;
 
 namespace HardPong.Dependencies;
 
-class PaddleInputMovement : IKeyboardInput
+internal class PaddleInputMovement : IPaddleController
 {
-    private readonly Paddle _paddle;
-    private Keys _keyUp, _keyDown;
+    private readonly IKeyboardReader _keyboard;
+    private readonly Keys _keyUp, _keyDown;
 
-    public PaddleInputMovement(Paddle paddle,Keys up, Keys down)
+    public PaddleInputMovement(IKeyboardReader keyboard, Keys up, Keys down)
     {
-        this._paddle = paddle;
-        SetKeys(up, down);
+        _keyboard = keyboard ?? throw new ArgumentNullException(nameof(keyboard));
+        _keyUp = up;
+        _keyDown = down;
     }
 
-    public PaddleInputMovement(Paddle paddle)
+    public float ReadMovementAxis()
     {
-        _paddle = paddle;
-    }
-
-    public void CheckKeyboardInput()
-    {
-        Vector2 inputDirection = KeyUpdate();
-        _paddle.OldPosition = _paddle.SpritePosition;
-        _paddle.SpritePosition += inputDirection * _paddle.Direction;
-    }
-
-    private Vector2 KeyUpdate() {
-        Vector2 inputDirection = Vector2.Zero;
-        if (Keyboard.GetState().IsKeyDown(_keyUp))
-            inputDirection.Y -= 1;
-        if (Keyboard.GetState().IsKeyDown(_keyDown))
-            inputDirection.Y += 1;
-
-        return inputDirection;
-    }
-
-    public void SetKeys(Keys up, Keys down) {
-        this._keyUp   = up;
-        this._keyDown = down;
+        float axis = 0f;
+        if (_keyboard.IsKeyDown(_keyUp))
+            axis -= 1f;
+        if (_keyboard.IsKeyDown(_keyDown))
+            axis += 1f;
+        return axis;
     }
 }

@@ -164,11 +164,11 @@ public class SpriteManager : DrawableGameComponent {
                  new Point(Paddle.BrickWidth, Paddle.BrickHeight), //brick width and height
                  0, //Colisionador
                  new Point(0, 0),
-                 new Point(0, 0), 
-                 new Vector2(Paddle.BrickSpeedX, Paddle.BrickSpeedY));//speed
-        
+                 new Point(0, 0),
+                 new Vector2(Paddle.BrickSpeedX, Paddle.BrickSpeedY),//speed
+                 new PaddleInputMovement(new KeyboardReader(), Keys.W, Keys.S));
+
         _player.PlayerNumber = 1;
-        _player.SetInputMovementDependency(new PaddleInputMovement(_player,Keys.W, Keys.S));
         
         //Load the player2 sprite y asignando valores
         _player2 = new Paddle(Game.Content.Load<Texture2D>(@"Images/rect"),
@@ -176,11 +176,11 @@ public class SpriteManager : DrawableGameComponent {
                   new Point(Paddle.BrickWidth, Paddle.BrickHeight), //brick width and height
                   0, //Colisionador
                   new Point(0, 0),
-                  new Point(0, 0), 
-                  new Vector2(Paddle.BrickSpeedX, Paddle.BrickSpeedY)); //speed
-        
+                  new Point(0, 0),
+                  new Vector2(Paddle.BrickSpeedX, Paddle.BrickSpeedY), //speed
+                  new PaddleInputMovement(new KeyboardReader(), Keys.Up, Keys.Down));
+
         _player2.PlayerNumber = 2;
-        _player2.SetInputMovementDependency(new PaddleInputMovement(_player2,Keys.Up, Keys.Down));
 
         _ball = new Ball(
                 Game.Content.Load<Texture2D>(@"Images/circulo"),

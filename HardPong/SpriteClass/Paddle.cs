@@ -1,8 +1,7 @@
-﻿using HardPong.Dependencies;
+﻿using System;
 using HardPong.Interfaces;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace HardPong.SpriteClass;
 
@@ -14,30 +13,24 @@ internal class Paddle : Sprite
     public const float BrickSpeedY = 5;
 
     // Movement stuff
-    private IKeyboardInput _paddleInputMovement;
+    private readonly IPaddleController _controller;
 
     public byte PlayerNumber { get; set; }
 
     public Paddle(Texture2D textureImage, Vector2 position,
         Point frameSize, int collisionOffset, Point currentFrame, Point sheetSize,
-        Vector2 speed)
+        Vector2 speed, IPaddleController controller)
         : base(textureImage, position, frameSize, collisionOffset, currentFrame,
-        sheetSize, speed){}
+        sheetSize, speed)
+    {
+        _controller = controller ?? throw new ArgumentNullException(nameof(controller));
+    }
 
     public override void Update()
     {
-        _paddleInputMovement.CheckKeyboardInput();
-    }
-
-    public void SetInputMovementDependency(IKeyboardInput input) {
-        _paddleInputMovement = input;
-    }
-
-    public void SetKeys(Keys up, Keys down)
-    {
-        if (_paddleInputMovement == null) return;
-        var pm =  (PaddleInputMovement) _paddleInputMovement;
-        pm.SetKeys(up,down);
+        float axis = _controller.ReadMovementAxis();
+        OldPosition = SpritePosition; // las colisiones utilizan OldPosition
+        SpritePosition += new Vector2(0f, axis) * Speed;
     }
 
     public void GetBackToOldPosition() {
