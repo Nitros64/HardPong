@@ -57,13 +57,13 @@ class SpriteManagerInput : IKeyboardInput
                     gsc.Play();
                     break;
                 case GameStates.Paused:
-                    gsc.Pause();//toggle between Playing and Paused
+                    gsc.Resume();//continuar la partida
                     break;
                 case GameStates.Playing:
-                    gsc.Pause();//toggle between Playing and Paused
+                    gsc.Pause();//pausar la partida
                     break;
                 case GameStates.Stop:
-                    gsc.Stop();//toggle
+                    gsc.PrepareNextRound();//preparar la siguiente ronda
                     if (_spritemanager.IsMatchOver)
                         _spritemanager.Begin();
                     else{

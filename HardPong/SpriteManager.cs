@@ -279,7 +279,7 @@ public class SpriteManager : DrawableGameComponent {
     }
     private void UpdateScores() {
         if (_matchScore.LastPointWinner != PlayerId.None)
-            _gameState.Stop();//enter to stop state
+            _gameState.EndRound();//enter to stop state
     }
 
     public override void Draw(GameTime gameTime)

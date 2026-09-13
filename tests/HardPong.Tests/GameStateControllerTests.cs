@@ -3,8 +3,7 @@ using GameStates = HardPong.GameEnum.GameStates;
 
 namespace HardPong.Tests;
 
-// Pruebas del comportamiento ACTUAL de la maquina de estados.
-// (El paso "transiciones explicitas" cambiara el toggle de Pause: estas pruebas se actualizaran entonces.)
+// Pruebas de la maquina de estados con transiciones explicitas.
 public class GameStateControllerTests
 {
     private static GameStateController NewController() => new();
@@ -50,13 +49,36 @@ public class GameStateControllerTests
     }
 
     [Fact]
-    public void Pause_FromPaused_Resumes()
+    public void Pause_Twice_DoesNotResume()
     {
         var controller = NewController();
         controller.Play();
         controller.Pause();
 
         controller.Pause();
+
+        Assert.Equal(GameStates.Paused, controller.GetGameState());
+    }
+
+    [Fact]
+    public void Resume_FromPaused_Resumes()
+    {
+        var controller = NewController();
+        controller.Play();
+        controller.Pause();
+
+        controller.Resume();
+
+        Assert.Equal(GameStates.Playing, controller.GetGameState());
+    }
+
+    [Fact]
+    public void Resume_FromPlaying_IsIgnored()
+    {
+        var controller = NewController();
+        controller.Play();
+
+        controller.Resume();
 
         Assert.Equal(GameStates.Playing, controller.GetGameState());
     }
@@ -72,36 +94,49 @@ public class GameStateControllerTests
     }
 
     [Fact]
-    public void Stop_FromPlaying_GoesToStop()
+    public void EndRound_FromPlaying_GoesToStop()
     {
         var controller = NewController();
         controller.Play();
 
-        controller.Stop();
+        controller.EndRound();
 
         Assert.Equal(GameStates.Stop, controller.GetGameState());
     }
 
     [Fact]
-    public void Stop_FromStop_BackToReady()
+    public void EndRound_FromStop_IsIgnored()
     {
         var controller = NewController();
         controller.Play();
-        controller.Stop();
+        controller.EndRound();
 
-        controller.Stop();
+        controller.EndRound();
+
+        Assert.Equal(GameStates.Stop, controller.GetGameState());
+    }
+
+    [Fact]
+    public void PrepareNextRound_FromStop_BackToReady()
+    {
+        var controller = NewController();
+        controller.Play();
+        controller.EndRound();
+
+        controller.PrepareNextRound();
 
         Assert.Equal(GameStates.Ready, controller.GetGameState());
     }
 
     [Fact]
-    public void Stop_FromReady_IsIgnored()
+    public void PrepareNextRound_FromPlaying_IsIgnored()
     {
         var controller = NewController();
+        controller.Play();
 
-        controller.Stop();
+        controller.PrepareNextRound();
 
-        Assert.Equal(GameStates.Ready, controller.GetGameState());
+        Assert.Equal(GameStates.Playing, controller.GetGameState());
     }
 
     [Fact]

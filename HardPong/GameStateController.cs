@@ -25,22 +25,28 @@ public class GameStateController : IGameState
 
     public void Pause()
     {
-        _currentState = _currentState switch
-        {
-            GameEnum.GameStates.Playing => GameEnum.GameStates.Paused,
-            GameEnum.GameStates.Paused => GameEnum.GameStates.Playing,
-            _ => _currentState
-        };
+        if (_currentState == GameEnum.GameStates.Playing)
+            _currentState = GameEnum.GameStates.Paused;
     }
 
-    public void Stop()
+    public void Resume()
     {
-        _currentState = _currentState switch
-        {
-            GameEnum.GameStates.Playing => GameEnum.GameStates.Stop,
-            GameEnum.GameStates.Stop => GameEnum.GameStates.Ready,
-            _ => _currentState
-        };
+        if (_currentState == GameEnum.GameStates.Paused)
+            _currentState = GameEnum.GameStates.Playing;
+    }
+
+    // Termina la ronda en curso (se anoto un punto)
+    public void EndRound()
+    {
+        if (_currentState == GameEnum.GameStates.Playing)
+            _currentState = GameEnum.GameStates.Stop;
+    }
+
+    // Prepara la siguiente ronda tras la celebracion
+    public void PrepareNextRound()
+    {
+        if (_currentState == GameEnum.GameStates.Stop)
+            _currentState = GameEnum.GameStates.Ready;
     }
 
     public void OpenExitMenu()
