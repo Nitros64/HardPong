@@ -95,7 +95,6 @@ public class MainMenu : DrawableGameComponent {
     public override void Update(GameTime gameTime)
     {
         checkMainMenuKey(Game.Window.ClientBounds);
-        music_loop();
         _scaleChanger.Advance();
         _colorChanger.Advance();
         foreach (Sprite s in _randomBalls)
@@ -124,12 +123,6 @@ public class MainMenu : DrawableGameComponent {
         _spriteBatch.End();
     }
 
-    private void music_loop() {
-        if (MediaPlayer.PlayPosition.Minutes == 1 && MediaPlayer.PlayPosition.Seconds == 17 &&
-            MediaPlayer.PlayPosition.Milliseconds >= 195)
-            MediaPlayer.Play(_music, new TimeSpan(0, 0, 16));            
-    }
-                
     public void checkMainMenuKey(Rectangle rect)
     {
         switch (_menuSimple.Update()) {
