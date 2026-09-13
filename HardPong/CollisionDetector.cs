@@ -17,12 +17,12 @@ internal class CollisionDetector
             : CollisionSound.None;
     }
 
-    public CollisionSound ResolveBallBoundary(Ball ball, Rectangle bounds)
+    public BallBoundaryOutcome ResolveBallBoundary(Ball ball, Rectangle bounds)
     {
         BallBoundaryContact contact = CollisionBallWall.Detect(ball.CollisionRect, bounds);
         return contact.OutLeft || contact.OutRight || contact.OutTop || contact.OutBottom
             ? _response.ResolveBallBoundary(ball, contact, bounds)
-            : CollisionSound.None;
+            : default;
     }
 
     public void ResolvePaddleBoundary(Paddle paddle, Rectangle bounds)

@@ -8,7 +8,6 @@ using HardPong.Interfaces;
 using HardPong.Dependencies;
 using HardPong.SpriteClass;
 using static HardPong.GameEnum;
-using static HardPong.SpriteClass.Ball;
 
 namespace HardPong;
 
@@ -35,7 +34,9 @@ public class SpriteManager : DrawableGameComponent {
     private SpriteFont _fontScore;
     private SpriteFont _greatScore;
     private const string ScoreString = "SCORE:";
-    private int _score1, _score2;
+
+    //Puntuacion y reglas de victoria
+    private readonly MatchScore _matchScore = new();
 
     //Exit Menu
     private const string Continue = "CONTINUE";
@@ -110,8 +111,7 @@ public class SpriteManager : DrawableGameComponent {
 
     private void reset_primitives() {
         _gameState.Ready();
-        _ball.Winner = Ball.PlayerNumber.NoOne;
-        ResetScore();
+        _matchScore.Reset();
     }
 
     public void ResetPosition()//ball and players
@@ -122,10 +122,6 @@ public class SpriteManager : DrawableGameComponent {
         _ball.SetSpeed(Ball.BallSpeedX, Ball.BallSpeedY);
     }
 
-    private void ResetScore()
-    {
-        _score1 = _score2 = PlayerWinner = 0;
-    }
     public static void End()
     {
         MediaPlayer.Stop();
@@ -210,10 +206,8 @@ public class SpriteManager : DrawableGameComponent {
     {
         //Load Fuente de Letras
         _fontScore = Game.Content.Load<SpriteFont>(@"Font/NESfont2");
-        _score1 = 0;
-        _score2 = 0;
         _greatScore = Game.Content.Load<SpriteFont>(@"Font/NESfont");
-    }  
+    }
 
     private void LoadContentMusic() {
         //Load Musica
@@ -270,7 +264,10 @@ public class SpriteManager : DrawableGameComponent {
         else
             sound = CollisionSound.None;
 
-        sound |= _collisionManager.ResolveBallBoundary(_ball, Game.Window.ClientBounds);
+        BallBoundaryOutcome boundary = _collisionManager.ResolveBallBoundary(_ball, Game.Window.ClientBounds);
+        sound |= boundary.Sound;
+        if (boundary.Scorer != PlayerId.None)
+            _matchScore.AwardPoint(boundary.Scorer);
 
         // Orden historico de audio: pala, puntuacion, muro
         if (sound.HasFlag(CollisionSound.Paddle))
@@ -281,20 +278,8 @@ public class SpriteManager : DrawableGameComponent {
             _pongAudio.PlayWall();
     }
     private void UpdateScores() {
-        switch (_ball.Winner) {
-            case PlayerNumber.Player1:
-                ++_score1;
-                _gameState.Stop();//enter to stop state
-                break;
-            case PlayerNumber.Player2:
-                ++_score2;
-                _gameState.Stop();//enter to stop state
-                break;
-        }
-        if (_score1 == 10)
-            PlayerWinner = 1;
-        else if (_score2 == 10)
-            PlayerWinner = 2;
+        if (_matchScore.LastPointWinner != PlayerId.None)
+            _gameState.Stop();//enter to stop state
     }
 
     public override void Draw(GameTime gameTime)
@@ -318,8 +303,8 @@ public class SpriteManager : DrawableGameComponent {
         float winScale = 0.6f; // El score en numeros GRANDES
         float score_scale = 1.0f;
 
-        spriteBatch.DrawString(_fontScore,ScoreString + _score1,new Vector2(100, 10), Color.White);
-        spriteBatch.DrawString(_fontScore,ScoreString + _score2,new Vector2(Game.Window.ClientBounds.Width - 200, 10), Color.White);
+        spriteBatch.DrawString(_fontScore,ScoreString + _matchScore.Player1,new Vector2(100, 10), Color.White);
+        spriteBatch.DrawString(_fontScore,ScoreString + _matchScore.Player2,new Vector2(Game.Window.ClientBounds.Width - 200, 10), Color.White);
 
         if (_gameState.GetGameState() == GameStates.Stop)
         {
@@ -327,16 +312,17 @@ public class SpriteManager : DrawableGameComponent {
             winScale    = _scWinScale.Current;  //Alterna cada 10 frames (0.6f, 0.57f)
             score_scale = _scScoreScale.Current; //Alterna cada 10 frames (1.0f, 1.2f)
 
-            if (PlayerWinner >= 1) {
-                spriteBatch.DrawString(_greatScore, "PLAYER " + PlayerWinner + "\n WINS",
+            if (_matchScore.MatchWinner != PlayerId.None) {
+                string winner = _matchScore.MatchWinner == PlayerId.Player1 ? "1" : "2";
+                spriteBatch.DrawString(_greatScore, "PLAYER " + winner + "\n WINS",
                                        _pcWinner.VectorSwitch(IsNear(winScale, 0.57f)), winner_color, 0,
                                        Vector2.Zero, winScale, SpriteEffects.None, 0);
             }
             else{
-                DrawScoreCounters(_ball.Winner == PlayerNumber.Player1,""+_score1,
+                DrawScoreCounters(_matchScore.LastPointWinner == PlayerId.Player1, "" + _matchScore.Player1,
                     _pcScoreCounter1, winner_color, score_scale, 1.2f);
-                DrawScoreCounters(_ball.Winner == PlayerNumber.Player2,""+_score2,
-                    _pcScoreCounter2,winner_color, score_scale, 1.2f);
+                DrawScoreCounters(_matchScore.LastPointWinner == PlayerId.Player2, "" + _matchScore.Player2,
+                    _pcScoreCounter2, winner_color, score_scale, 1.2f);
             }
         }
         else if (_gameState.GetGameState() == GameStates.Paused)             
@@ -366,9 +352,9 @@ public class SpriteManager : DrawableGameComponent {
 
     //PROPERTIES
 
-    public Ball GetBall() { return _ball;}
+    public bool IsMatchOver => _matchScore.MatchWinner != PlayerId.None;
 
-    public byte PlayerWinner { get; set; }
+    public void StartNextRound() => _matchScore.StartNextRound();
 
     public GameStateController getGameStateController => _gameState;
 

@@ -17,6 +17,9 @@ internal readonly record struct BallBoundaryContact(
     bool OutTop,
     bool OutBottom);
 
+// Resultado de resolver un contacto con los limites: audio y, si lo hubo, quien anota.
+internal readonly record struct BallBoundaryOutcome(CollisionSound Sound, PlayerId Scorer);
+
 // Eventos que la respuesta comunica; la coordinacion de la partida reproduce el audio.
 [Flags]
 internal enum CollisionSound

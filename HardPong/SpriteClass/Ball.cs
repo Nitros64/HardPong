@@ -10,7 +10,6 @@ public class Ball : Sprite {
     public const int BallHeight = 12;
 
     private const float MyScale = 1f;
-    public enum PlayerNumber {NoOne = 0, Player1, Player2 };
 
     public Ball(Texture2D textureImage, Vector2 position, Point frameSize,
         int collisionOffset, Point currentFrame, Point sheetSize, Vector2 speed)
@@ -18,7 +17,6 @@ public class Ball : Sprite {
         sheetSize, speed)
     {
         SetScale(MyScale);
-        Winner = PlayerNumber.NoOne;
     }
 
     //Sprite is automated. Direction is same as speed
@@ -108,6 +106,4 @@ public class Ball : Sprite {
     public void InvertDirectionHorizontal() {
         Speed.X *= -1;
     }
-
-    public PlayerNumber Winner { get; set; }
 }

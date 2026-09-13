@@ -45,23 +45,24 @@ internal class CollisionResponse
         return false;
     }
 
-    public CollisionSound ResolveBallBoundary(Ball ball, in BallBoundaryContact contact, Rectangle bounds)
+    public BallBoundaryOutcome ResolveBallBoundary(Ball ball, in BallBoundaryContact contact, Rectangle bounds)
     {
         Rectangle rectball = ball.CollisionRect;
         var sound = CollisionSound.None;
+        var scorer = PlayerId.None;
 
         if (contact.OutRight)
         {//Pierde el jugador izquierdo
             ball.PositionX = bounds.Width - rectball.Width;
             ball.InvertDirectionHorizontal();//Invertir direccion Horizontal
-            ball.Winner = PlayerNumber.Player1;
+            scorer = PlayerId.Player1;
             sound |= CollisionSound.Score;
         }
         else if (contact.OutLeft)
         {//Pierde el jugador derecho
             ball.PositionX = 0;
             ball.InvertDirectionHorizontal();
-            ball.Winner = PlayerNumber.Player2;
+            scorer = PlayerId.Player2;
             sound |= CollisionSound.Score;
         }
         if (contact.OutBottom)
@@ -77,7 +78,7 @@ internal class CollisionResponse
             sound |= CollisionSound.Wall;
         }
 
-        return sound;
+        return new BallBoundaryOutcome(sound, scorer);
     }
 
     public void ResolvePaddleBoundary(Paddle paddle, Rectangle bounds)

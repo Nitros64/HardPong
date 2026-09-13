@@ -1,6 +1,5 @@
 ﻿using HardPong.Interfaces;
 using Microsoft.Xna.Framework.Input;
-using static HardPong.SpriteClass.Ball;
 using static HardPong.GameEnum;
 
 namespace HardPong.Dependencies;
@@ -65,12 +64,12 @@ class SpriteManagerInput : IKeyboardInput
                     break;
                 case GameStates.Stop:
                     gsc.Stop();//toggle
-                    if (_spritemanager.PlayerWinner >= 1)
-                        _spritemanager.Begin();                        
+                    if (_spritemanager.IsMatchOver)
+                        _spritemanager.Begin();
                     else{
                         _spritemanager.reset_soundEffects();
                         _spritemanager.ResetPosition();
-                        _spritemanager.GetBall().Winner = PlayerNumber.NoOne;
+                        _spritemanager.StartNextRound();
                     }
                     break;
             }
