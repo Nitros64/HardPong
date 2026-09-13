@@ -1,5 +1,4 @@
-﻿using HardPong.Interfaces;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace HardPong.SpriteClass;
@@ -13,10 +12,6 @@ public class Ball : Sprite {
     private const float MyScale = 1f;
     public enum PlayerNumber {NoOne = 0, Player1, Player2 };
 
-    private ISoundEffect _soundBrick;
-    private ISoundEffect _soundWall;
-    private ISoundEffect _soundScore;
-
     public Ball(Texture2D textureImage, Vector2 position, Point frameSize,
         int collisionOffset, Point currentFrame, Point sheetSize, Vector2 speed)
         : base(textureImage, position, frameSize, collisionOffset, currentFrame,
@@ -24,13 +19,6 @@ public class Ball : Sprite {
     {
         SetScale(MyScale);
         Winner = PlayerNumber.NoOne;
-    }
-
-    public void SoundDependencies(ISoundEffect soundBrick1, ISoundEffect soundWall1, 
-                                  ISoundEffect soundScore) {
-        _soundBrick = soundBrick1;
-        _soundWall = soundWall1;
-        _soundScore = soundScore;
     }
 
     //Sprite is automated. Direction is same as speed
@@ -122,29 +110,4 @@ public class Ball : Sprite {
     }
 
     public PlayerNumber Winner { get; set; }
-
-    public void SoundWall()
-    {
-        _soundWall.PlaySoundEffect();
-    }
-
-    public void SoundBrick() {
-        _soundBrick.PlaySoundEffect();
-    }
-
-    public void ScorePlaySoundEffects() {
-        _soundScore.PlaySoundEffect();
-    }
-
-    public void ScoreStopSoundEffects()
-    {
-        _soundScore.StopSoundEffect();
-    }
-
-    public void DisposeSounds()
-    {
-        _soundBrick?.Dispose();
-        _soundWall?.Dispose();
-        _soundScore?.Dispose();
-    }
 }

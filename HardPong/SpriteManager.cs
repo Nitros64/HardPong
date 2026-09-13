@@ -28,6 +28,9 @@ public class SpriteManager : DrawableGameComponent {
     private Paddle _player, _player2;
     private Ball _ball;
 
+    //Audio de la partida
+    private PongAudio _pongAudio;
+
     //Fuentes para las letras
     private SpriteFont _fontScore;
     private SpriteFont _greatScore;
@@ -129,7 +132,7 @@ public class SpriteManager : DrawableGameComponent {
     }    
 
     public void reset_soundEffects() {
-        _ball.ScoreStopSoundEffects();
+        _pongAudio.StopScore();
     }
 
     protected override void LoadContent()
@@ -148,7 +151,7 @@ public class SpriteManager : DrawableGameComponent {
     {
         // Solo recursos creados a mano; lo cargado via ContentManager lo libera el framework.
         _whiteRectangle?.Dispose();
-        _ball?.DisposeSounds();
+        _pongAudio?.Dispose();
     }
 
     private void LoadContentSprites() {
@@ -195,12 +198,11 @@ public class SpriteManager : DrawableGameComponent {
                 new Vector2(Ball.BallSpeedX, Ball.BallSpeedY));            
 
         _ball.SetColor(Color.Red);
-        //La variable bola cargara sus sonidos correspondientes
-        _ball.SoundDependencies(
+        //El audio de la partida vive en PongAudio, no en la pelota
+        _pongAudio = new PongAudio(
             new BallSound(Game.Content.Load<SoundEffect>(@"Audio/paddleSound")),
             new BallSound(Game.Content.Load<SoundEffect>(@"Audio/wallSound")),
-            new BallSound(Game.Content.Load<SoundEffect>(@"Audio/cheer")) 
-            );
+            new BallSound(Game.Content.Load<SoundEffect>(@"Audio/cheer")));
         _ball.SoloMovementDependency(new BallMain());
     }
     
@@ -272,11 +274,11 @@ public class SpriteManager : DrawableGameComponent {
 
         // Orden historico de audio: pala, puntuacion, muro
         if (sound.HasFlag(CollisionSound.Paddle))
-            _ball.SoundBrick();
+            _pongAudio.PlayPaddle();
         if (sound.HasFlag(CollisionSound.Score))
-            _ball.ScorePlaySoundEffects();
+            _pongAudio.PlayScore();
         if (sound.HasFlag(CollisionSound.Wall))
-            _ball.SoundWall();
+            _pongAudio.PlayWall();
     }
     private void UpdateScores() {
         switch (_ball.Winner) {
