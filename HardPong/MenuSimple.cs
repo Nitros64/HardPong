@@ -1,4 +1,5 @@
-﻿using HardPong.SpriteClass;
+﻿using System;
+using HardPong.SpriteClass;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
@@ -25,7 +26,7 @@ internal class MenuSimple
 
     internal KeyInputManager InputManager { get; set; }
 
-    public MenuSimple(Vector2 newLocation) {
+    private MenuSimple(Vector2 newLocation) {
         InputManager = new KeyInputManager();
         _startlocation = newLocation;
         _optionsLocation = _startlocation;
@@ -35,7 +36,10 @@ internal class MenuSimple
     public MenuSimple(Vector2 newLocation,params string[] ops)
         : this(newLocation)
     {
-        _options = ops;            
+        if (ops is null || ops.Length == 0)
+            throw new ArgumentException("MenuSimple requiere al menos una opcion.", nameof(ops));
+
+        _options = ops;
     }
 
     public void Initialize()
