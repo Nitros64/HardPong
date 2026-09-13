@@ -1,29 +1,31 @@
-﻿using Microsoft.Xna.Framework;
-using HardPong.Interfaces;
-using HardPong.SpriteClass;
+﻿using HardPong.SpriteClass;
+using Microsoft.Xna.Framework;
 
-namespace HardPong;
+namespace HardPong.Dependencies;
 
-internal class CollisionDetector(
-    IBallPaddleCollision ballPaddle,
-    IBallBoundaryCollision ballBoundary,
-    IPaddleBoundaryCollision paddleBoundary)
+// Orquesta el orden: primero detectar (puro), luego responder.
+// El orden de las colisiones lo fija SpriteManager en su Update.
+internal class CollisionDetector
 {
-    //Collision Interfaces
-    //Ball and Paddle Handler
-    //Ball Handler
-    //Paddle Handler
+    private readonly CollisionResponse _response = new();
 
-    public void ResolveBallPaddle(Ball ball, Paddle paddle) {
-        ballPaddle.Resolve(ball, paddle);
+    public void ResolveBallPaddle(Ball ball, Paddle paddle)
+    {
+        BallPaddleContact contact = CollisionBallPaddle.Detect(ball, paddle);
+        if (contact.Hit)
+            _response.ResolveBallPaddle(ball, paddle, contact);
     }
 
-    public void ResolveBallBoundary(Ball ball, Rectangle bounds) {
-        ballBoundary.Resolve(ball, bounds);
+    public void ResolveBallBoundary(Ball ball, Rectangle bounds)
+    {
+        BallBoundaryContact contact = CollisionBallWall.Detect(ball, bounds);
+        if (contact.OutLeft || contact.OutRight || contact.OutTop || contact.OutBottom)
+            _response.ResolveBallBoundary(ball, contact, bounds);
     }
 
     public void ResolvePaddleBoundary(Paddle paddle, Rectangle bounds)
     {
-        paddleBoundary.Resolve(paddle, bounds);
+        if (CollisionPaddleWall.Detect(paddle, bounds))
+            _response.ResolvePaddleBoundary(paddle, bounds);
     }
 }

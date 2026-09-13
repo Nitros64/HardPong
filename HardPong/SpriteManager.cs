@@ -84,9 +84,7 @@ public class SpriteManager : DrawableGameComponent {
             new PositionChanger2(new Point(gameWidth / 2 + 120, 40),
                                  new Point(gameWidth / 2 + 115, 45));
         _pcWinner = new PositionChanger2(new Point(210, 150), new Point(220, 150));
-        _collisionManager = new CollisionDetector(new CollisionBallPaddle(), 
-                                                 new CollisionBallWall(), 
-                                                 new CollisionPaddleWall());
+        _collisionManager = new CollisionDetector();
 
         _keyboardInput = new SpriteManagerInput(this,gameEngine);
     }
@@ -252,17 +250,22 @@ public class SpriteManager : DrawableGameComponent {
             _player2.Update();
             
             //Sprites Collisions
-            _collisionManager.ResolvePaddleBoundary(_player, Game.Window.ClientBounds);
-            _collisionManager.ResolvePaddleBoundary(_player2, Game.Window.ClientBounds);
-
-            if(_ball.Direction.X > 0 )
-                _collisionManager.ResolveBallPaddle(_ball,_player2);// Right Paddle (Player 2)
-			else if(_ball.Direction.X < 0)
-			    _collisionManager.ResolveBallPaddle(_ball,_player);// Left Paddle (Player 1)
-
-            _collisionManager.ResolveBallBoundary(_ball,Game.Window.ClientBounds);
+            ResolveCollisions();
             UpdateScores();
         }
+    }
+
+    private void ResolveCollisions()
+    {
+        _collisionManager.ResolvePaddleBoundary(_player, Game.Window.ClientBounds);
+        _collisionManager.ResolvePaddleBoundary(_player2, Game.Window.ClientBounds);
+
+        if (_ball.Direction.X > 0)
+            _collisionManager.ResolveBallPaddle(_ball, _player2);// Right Paddle (Player 2)
+        else if (_ball.Direction.X < 0)
+            _collisionManager.ResolveBallPaddle(_ball, _player);// Left Paddle (Player 1)
+
+        _collisionManager.ResolveBallBoundary(_ball, Game.Window.ClientBounds);
     }
     private void UpdateScores() {
         switch (_ball.Winner) {

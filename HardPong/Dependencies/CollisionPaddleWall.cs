@@ -1,15 +1,14 @@
-﻿using HardPong.Interfaces;
-using HardPong.SpriteClass;
+﻿using HardPong.SpriteClass;
 using Microsoft.Xna.Framework;
 
 namespace HardPong.Dependencies;
-internal class CollisionPaddleWall : IPaddleBoundaryCollision
+
+// Deteccion pura: indica si la pala sale de los limites verticales.
+internal static class CollisionPaddleWall
 {
-    public void Resolve(Paddle paddle, Rectangle bounds)
+    public static bool Detect(Paddle paddle, Rectangle bounds)
     {
-        if (paddle.PositionY <= 0)
-            paddle.PositionY = 0;
-        if (paddle.PositionY + paddle.SpriteFrameSize.Y >= bounds.Height)
-            paddle.PositionY = bounds.Height - paddle.SpriteFrameSize.Y;
+        return paddle.PositionY <= 0
+            || paddle.PositionY + paddle.SpriteFrameSize.Y >= bounds.Height;
     }
 }
