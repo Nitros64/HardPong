@@ -3,6 +3,10 @@ using Microsoft.Xna.Framework.Input;
 using static HardPong.GameEnum;
 
 namespace HardPong.Dependencies;
+
+// Lee el teclado y traduce las pulsaciones a GameAction via GameInputMapper.
+// La ejecucion de acciones vive aqui hasta que la navegacion de pantallas
+// tenga su propio coordinador (segunda mitad del paso 7).
 class SpriteManagerInput : IKeyboardInput
 {
     //Menu Simple
@@ -20,65 +24,65 @@ class SpriteManagerInput : IKeyboardInput
 
     public void CheckKeyboardInput()
     {
-        GameStates mystate = _spritemanager.getGameStateController.GetGameState();
         GameStateController gsc = _spritemanager.getGameStateController;
+        GameStates state = gsc.GetGameState();
 
-        if (mystate != GameStates.ExitMenu)           
-            check_key_enter_and_escape(); //Se chequea por la tecla Enter o Escape            
-        else if (mystate == GameStates.ExitMenu) {
-            switch (_spritemanager.EscapeMenu.Update()){               
-                case 0: case 1://Escape //Enter Continue
-                    gsc.ResumeFromExitMenu();
-                    _spritemanager.EscapeMenu.InputManager.Exit();
-                    break;
-                case 2: //Return Main Menu
-                    _spritemanager.Game.Components.Remove(_spritemanager);
-                    _spritemanager.Game.Components.Add(_refGame1.GetMenuPong);
-                    _spritemanager.EscapeMenu.InputManager.Exit();
-                    _inputManager.Exit();
-                    break;
-                case 3:
-                    _spritemanager.Game.Exit();
-                    break;
-            }
-        } 
+        if (state != GameStates.ExitMenu)
+        {
+            _inputManager.Begin();
+            GameAction action = GameInputMapper.FromGameplay(state,
+                _inputManager.CheckPressedKey(Keys.Enter),
+                _inputManager.CheckPressedKey(Keys.Escape));
+            _inputManager.End();
+            Execute(action);
+        }
+        else
+        {
+            Execute(GameInputMapper.FromExitMenu(_spritemanager.EscapeMenu.Update()));
+        }
     }
 
-    private void check_key_enter_and_escape() {           
-        // Se chequea si el usuario a presionado Enter durante el estado Fase Playing
-        // lo cual hace que el juego entre en estado de Pausa
+    private void Execute(GameAction action)
+    {
         GameStateController gsc = _spritemanager.getGameStateController;
-        _inputManager.Begin();
-        if (_inputManager.CheckPressedKey(Keys.Enter))
+        switch (action)
         {
-            switch (gsc.GetGameState())
-            {
-                case GameStates.Ready:
-                    gsc.Play();
-                    break;
-                case GameStates.Paused:
-                    gsc.Resume();//continuar la partida
-                    break;
-                case GameStates.Playing:
-                    gsc.Pause();//pausar la partida
-                    break;
-                case GameStates.Stop:
-                    gsc.PrepareNextRound();//preparar la siguiente ronda
-                    if (_spritemanager.IsMatchOver)
-                        _spritemanager.Begin();
-                    else{
-                        _spritemanager.reset_soundEffects();
-                        _spritemanager.ResetPosition();
-                        _spritemanager.StartNextRound();
-                    }
-                    break;
-            }
+            case GameAction.StartMatch:
+                gsc.Play();
+                break;
+            case GameAction.Pause:
+                gsc.Pause();
+                break;
+            case GameAction.Resume:
+                gsc.Resume();
+                break;
+            case GameAction.PrepareNextRound:
+                gsc.PrepareNextRound();
+                if (_spritemanager.IsMatchOver)
+                    _spritemanager.Begin();
+                else{
+                    _spritemanager.reset_soundEffects();
+                    _spritemanager.ResetPosition();
+                    _spritemanager.StartNextRound();
+                }
+                break;
+            case GameAction.OpenExitMenu:
+                gsc.OpenExitMenu();
+                _inputManager.Exit();
+                break;
+            case GameAction.ContinueGame:
+                gsc.ResumeFromExitMenu();
+                _spritemanager.EscapeMenu.InputManager.Exit();
+                break;
+            case GameAction.ReturnToMainMenu:
+                _spritemanager.Game.Components.Remove(_spritemanager);
+                _spritemanager.Game.Components.Add(_refGame1.GetMenuPong);
+                _spritemanager.EscapeMenu.InputManager.Exit();
+                _inputManager.Exit();
+                break;
+            case GameAction.QuitGame:
+                _spritemanager.Game.Exit();
+                break;
         }
-        else if (_inputManager.CheckPressedKey(Keys.Escape))
-        {
-            gsc.OpenExitMenu();
-            _inputManager.Exit();
-        }
-        _inputManager.End();
     }
 }
