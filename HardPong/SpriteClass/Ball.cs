@@ -6,6 +6,7 @@ namespace HardPong.SpriteClass;
 public class Ball : Sprite {
     public const float BallSpeedX = 5;
     public const float BallSpeedY = 4;
+    public const float MinVerticalSpeed = 3f;
     public const int BallWidth = 12;
     public const int BallHeight = 12;
 
@@ -52,7 +53,7 @@ public class Ball : Sprite {
                 value.Y = 7;
 
             if (value.Y == 0 || value.Y < 1)
-                value.Y = 3f;
+                value.Y = MinVerticalSpeed;
 
             if (Speed.Y < 0)
             {
@@ -86,8 +87,8 @@ public class Ball : Sprite {
         if (y > 7)
             y = 7;
        
-        if (y is 0 or < 1) 
-            y = 0.5f;
+        if (y is 0 or < 1)
+            y = MinVerticalSpeed;
 
         if (Speed.Y < 0)
         {

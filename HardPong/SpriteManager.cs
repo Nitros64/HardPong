@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -53,6 +54,7 @@ public class SpriteManager : DrawableGameComponent {
     private readonly ColorChanger _ccWinnerColor;
     private readonly PositionChanger2 _pcScoreCounter1;
     private readonly PositionChanger2 _pcScoreCounter2;
+    private readonly PositionChanger2 _pcWinner;
 
     //Collision Detector
     private readonly CollisionDetector _collisionManager;
@@ -78,9 +80,10 @@ public class SpriteManager : DrawableGameComponent {
         _pcScoreCounter1 = 
             new PositionChanger2(new Point((gameWidth / 2) - 200, 40),
                                  new Point((gameWidth / 2) - 205, 45));
-        _pcScoreCounter2 = 
+        _pcScoreCounter2 =
             new PositionChanger2(new Point(gameWidth / 2 + 120, 40),
                                  new Point(gameWidth / 2 + 115, 45));
+        _pcWinner = new PositionChanger2(new Point(210, 150), new Point(220, 150));
         _collisionManager = new CollisionDetector(new CollisionBallPaddle(), 
                                                  new CollisionBallWall(), 
                                                  new CollisionPaddleWall());
@@ -295,9 +298,8 @@ public class SpriteManager : DrawableGameComponent {
             score_scale  = _scScoreScale.VisualEffect(); //Cambia la escala cada 10 segundos(1.0f, 1.2f)
 
             if (PlayerWinner >= 1) {
-                PositionChanger2 winnerPos = new PositionChanger2(new Point(210, 150), new Point(220, 150));                  
                 spriteBatch.DrawString(_greatScore, "PLAYER " + PlayerWinner + "\n WINS",
-                                       winnerPos.VectorSwitch(winScale == 0.57f), winner_color, 0,
+                                       _pcWinner.VectorSwitch(IsNear(winScale, 0.57f)), winner_color, 0,
                                        Vector2.Zero, winScale, SpriteEffects.None, 0);
             }
             else{
@@ -311,15 +313,17 @@ public class SpriteManager : DrawableGameComponent {
             spriteBatch.DrawString(_greatScore, Pause, new Vector2(200, 200), Color.Yellow);            
     }
 
-    void DrawScoreCounters(bool isWinner, string playerScore, PositionChanger2 pos, Color winner_color, 
+    void DrawScoreCounters(bool isWinner, string playerScore, PositionChanger2 pos, Color winner_color,
                            float score_scale, float max_scale) {
-        if (isWinner) { 
-            _spriteBatch.DrawString(_greatScore,playerScore,pos.VectorSwitch(score_scale == max_scale),
+        if (isWinner) {
+            _spriteBatch.DrawString(_greatScore,playerScore,pos.VectorSwitch(IsNear(score_scale, max_scale)),
                                    winner_color, 0, Vector2.Zero,score_scale, SpriteEffects.None, 0);
         }
         else
             _spriteBatch.DrawString(_greatScore, playerScore, pos.GetFirst(), Color.White);
     }
+
+    private static bool IsNear(float a, float b) => MathF.Abs(a - b) < 0.0001f;
     
     //funcion para crear las lineas del medio
     private void DrawRectangles() {            
