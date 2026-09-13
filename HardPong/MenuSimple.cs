@@ -55,13 +55,15 @@ internal class MenuSimple
         if (InputManager.CheckPressedKey(Up)) // Flecha Para arriba
         {
             _menuOption = (--_menuOption < 0) ? _options.Length - 1 : _menuOption;
-            _selectArrow.SpritePosition = _startlocation + new Vector2(0, 30 * _menuOption);
+            _selectArrow.SetPosition(_startlocation.X, _startlocation.Y + 30 * _menuOption);
+            _selectArrow.PlaySelectionSound();
         }
-        else if (InputManager.CheckPressedKey(Down) || 
+        else if (InputManager.CheckPressedKey(Down) ||
                  InputManager.CheckPressedKey(Select)) // Flecha Para Abajo
         {
-            _menuOption = (_menuOption + 1) % _options.Length;                
-            _selectArrow.SpritePosition = _startlocation + new Vector2(0, 30 * _menuOption); 
+            _menuOption = (_menuOption + 1) % _options.Length;
+            _selectArrow.SetPosition(_startlocation.X, _startlocation.Y + 30 * _menuOption);
+            _selectArrow.PlaySelectionSound();
         }
         //Chequea si se ha presionado la tecla Escape o Enter
         if (InputManager.CheckPressedKey(Start))
@@ -88,7 +90,7 @@ internal class MenuSimple
         return op;
     }
 
-    public void exit()
+    public void Exit()
     {
         InputManager.Exit();
     }
@@ -97,7 +99,7 @@ internal class MenuSimple
         return InputHandler();
     }
     public void Draw(GameTime gameTime, SpriteBatch spriteBatch) {
-        _selectArrow.Draw(gameTime, spriteBatch);// flecha de seleccion
+        _selectArrow.Draw(spriteBatch);// flecha de seleccion
         _optionsLocation.Y = _startlocation.Y;
         foreach (string vin in _options) {
             spriteBatch.DrawString(_nesFont2, vin, _optionsLocation, Color.White);

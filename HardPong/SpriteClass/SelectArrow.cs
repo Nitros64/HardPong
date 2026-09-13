@@ -1,43 +1,41 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace HardPong.SpriteClass;
-public class SelectArrow : Sprite
+public class SelectArrow
 {
     //Triangulo de seleccion
+    private readonly Texture2D _textureImage;
     private readonly SoundEffect _soundArrow;
-   
+    private Vector2 _position;
+
     public SelectArrow(Texture2D textureImage, Vector2 position, SoundEffect soundTriangle)
-        : base(textureImage, position, new Point(0, 0), 0, new Point(0, 0),
-                new Point(0, 0), new Vector2(0, 0))
     {
-        this._soundArrow = soundTriangle;
+        _textureImage = textureImage;
+        _position = position;
+        _soundArrow = soundTriangle;
     }
 
-    public override void Update(GameTime gameTime, Rectangle clientBounds)
+    public Vector2 Position
     {
-        // Method intentionally left empty.
+        get => _position;
+        set => _position = value;
     }
 
-    public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+    public void SetPosition(float x, float y)
     {
-        spriteBatch.Draw(TextureImage, Position, Color.White);
+        _position.X = x;
+        _position.Y = y;
     }
 
-    public override Vector2 Direction
+    public void PlaySelectionSound()
     {
-        get => throw new NotImplementedException();
-        set => throw new NotImplementedException();
+        _soundArrow.Play();
     }
 
-    public override Vector2 SpritePosition
+    public void Draw(SpriteBatch spriteBatch)
     {
-        get => Position;
-        set{
-            _soundArrow.Play();
-            Position = value;
-        }
+        spriteBatch.Draw(_textureImage, _position, Color.White);
     }
 }
