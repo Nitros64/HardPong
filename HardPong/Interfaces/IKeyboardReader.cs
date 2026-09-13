@@ -4,5 +4,6 @@ namespace HardPong.Interfaces;
 
 internal interface IKeyboardReader
 {
-    bool IsKeyDown(Keys key);
+    // Una captura por lectura; las teclas de una misma operacion se consultan sobre ella.
+    KeyboardState Capture();
 }

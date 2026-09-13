@@ -19,7 +19,7 @@ internal class KeyInputManager
     }
 
     public void Begin() {
-        var currentKeyState = Keyboard.GetState();
+        var currentKeyState = Keyboard.GetState(); // una sola captura por frame
         if (_firstTime) {
             // Periodo de gracia tras Exit(): mientras haya una tecla disparadora
             // pulsada, _newKeyState NO se actualiza, de forma que la pulsacion
@@ -30,7 +30,7 @@ internal class KeyInputManager
 
             _firstTime = false;
         }
-        _newKeyState = Keyboard.GetState();
+        _newKeyState = currentKeyState;
     }
 
     public bool CheckPressedKey(Keys key) {

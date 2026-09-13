@@ -5,5 +5,5 @@ namespace HardPong.Dependencies;
 
 internal class KeyboardReader : IKeyboardReader
 {
-    public bool IsKeyDown(Keys key) => Keyboard.GetState().IsKeyDown(key);
+    public KeyboardState Capture() => Keyboard.GetState();
 }

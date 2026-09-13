@@ -18,10 +18,11 @@ internal class PaddleInputMovement : IPaddleController
 
     public float ReadMovementAxis()
     {
+        KeyboardState keyState = _keyboard.Capture(); // una sola captura por lectura
         float axis = 0f;
-        if (_keyboard.IsKeyDown(_keyUp))
+        if (keyState.IsKeyDown(_keyUp))
             axis -= 1f;
-        if (_keyboard.IsKeyDown(_keyDown))
+        if (keyState.IsKeyDown(_keyDown))
             axis += 1f;
         return axis;
     }

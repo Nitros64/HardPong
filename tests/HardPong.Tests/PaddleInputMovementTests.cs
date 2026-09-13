@@ -10,9 +10,9 @@ public class PaddleInputMovementTests
     // Teclado simulado: solo las teclas indicadas estan pulsadas.
     private sealed class FakeKeyboardReader(params Keys[] pressedKeys) : IKeyboardReader
     {
-        private readonly HashSet<Keys> _pressed = [.. pressedKeys];
+        private readonly KeyboardState _state = new(pressedKeys);
 
-        public bool IsKeyDown(Keys key) => _pressed.Contains(key);
+        public KeyboardState Capture() => _state;
     }
 
     private static PaddleInputMovement CreateController(FakeKeyboardReader reader)
