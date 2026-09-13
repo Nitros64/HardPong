@@ -11,21 +11,21 @@ internal class CollisionDetector
 
     public void ResolveBallPaddle(Ball ball, Paddle paddle)
     {
-        BallPaddleContact contact = CollisionBallPaddle.Detect(ball, paddle);
+        BallPaddleContact contact = CollisionBallPaddle.Detect(ball.CollisionRect, paddle.CollisionRect);
         if (contact.Hit)
             _response.ResolveBallPaddle(ball, paddle, contact);
     }
 
     public void ResolveBallBoundary(Ball ball, Rectangle bounds)
     {
-        BallBoundaryContact contact = CollisionBallWall.Detect(ball, bounds);
+        BallBoundaryContact contact = CollisionBallWall.Detect(ball.CollisionRect, bounds);
         if (contact.OutLeft || contact.OutRight || contact.OutTop || contact.OutBottom)
             _response.ResolveBallBoundary(ball, contact, bounds);
     }
 
     public void ResolvePaddleBoundary(Paddle paddle, Rectangle bounds)
     {
-        if (CollisionPaddleWall.Detect(paddle, bounds))
+        if (CollisionPaddleWall.Detect(paddle.CollisionRect, bounds))
             _response.ResolvePaddleBoundary(paddle, bounds);
     }
 }
