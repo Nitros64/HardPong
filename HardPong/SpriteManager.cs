@@ -275,7 +275,7 @@ public class SpriteManager : DrawableGameComponent {
         _player2.Draw(gameTime,_spriteBatch);
         // Draw all sprites
         if (GameStates.ExitMenu != _gameState.GetGameState()){
-            _ball.Draw(_spriteBatch);
+            _ball.Draw(gameTime,_spriteBatch);
             DrawRectangles();
         }
         else EscapeMenu.Draw(null, _spriteBatch);

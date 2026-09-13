@@ -70,10 +70,6 @@ public class Sprite {
         _spriteSoloMovement.AutomaticMovement(this);
     }
 
-    public void Draw(SpriteBatch spriteBatch) {
-        spriteBatch.Draw(TextureImage,Position,_spriteColor);//spriteColor
-    }
-
     public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch)
     {
         // Draw the sprite
