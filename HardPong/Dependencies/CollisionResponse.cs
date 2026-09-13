@@ -8,7 +8,7 @@ namespace HardPong.Dependencies;
 // No detecta nada por si mismo: solo responde a hechos.
 internal class CollisionResponse
 {
-    public void ResolveBallPaddle(Ball ball, Paddle paddle, in BallPaddleContact contact)
+    public CollisionSound ResolveBallPaddle(Ball ball, Paddle paddle, in BallPaddleContact contact)
     {
         Rectangle rectBall = contact.BallRect;
         Rectangle rectPaddle = contact.PaddleRect;
@@ -18,15 +18,9 @@ internal class CollisionResponse
         ball.Direction = new Vector2((angle / 10), m);
 
         if (angle >= 70)
-        {
             ball.ChangeDirection();
-            ball.SoundBrick();
-        }
         else
-        {
             ball.InvertDirectionHorizontal();//invierte el desplzamiento horizontal
-            ball.SoundBrick();
-        }
 
         if (rectBall.Y + rectBall.Height >= rectPaddle.Y && rectBall.Y + rectBall.Height < rectPaddle.Y + 10) // 7 es el original
             ball.SpritePosition = new Vector2(rectBall.X, rectPaddle.Y - rectBall.Height);
@@ -37,6 +31,8 @@ internal class CollisionResponse
         //(Garantiza la no penetracion de la bola a traves de los ladrillos)
         if (BallBorderCollision(rectBall, rectPaddle))
             paddle.GetBackToOldPosition();
+
+        return CollisionSound.Paddle;
     }
 
     private static bool BallBorderCollision(Rectangle ball, Rectangle paddle)
@@ -49,36 +45,39 @@ internal class CollisionResponse
         return false;
     }
 
-    public void ResolveBallBoundary(Ball ball, in BallBoundaryContact contact, Rectangle bounds)
+    public CollisionSound ResolveBallBoundary(Ball ball, in BallBoundaryContact contact, Rectangle bounds)
     {
         Rectangle rectball = ball.CollisionRect;
+        var sound = CollisionSound.None;
 
         if (contact.OutRight)
         {//Pierde el jugador izquierdo
             ball.PositionX = bounds.Width - rectball.Width;
             ball.InvertDirectionHorizontal();//Invertir direccion Horizontal
             ball.Winner = PlayerNumber.Player1;
-            ball.ScorePlaySoundEffects();
+            sound |= CollisionSound.Score;
         }
         else if (contact.OutLeft)
         {//Pierde el jugador derecho
             ball.PositionX = 0;
             ball.InvertDirectionHorizontal();
             ball.Winner = PlayerNumber.Player2;
-            ball.ScorePlaySoundEffects();
+            sound |= CollisionSound.Score;
         }
         if (contact.OutBottom)
         {
             ball.PositionY = bounds.Height - ball.SpriteFrameSize.Y;
             ball.InvertDirectionVertical();
-            ball.SoundWall();
+            sound |= CollisionSound.Wall;
         }
         else if (contact.OutTop)
         {
             ball.PositionY = 0;
             ball.InvertDirectionVertical();
-            ball.SoundWall();
+            sound |= CollisionSound.Wall;
         }
+
+        return sound;
     }
 
     public void ResolvePaddleBoundary(Paddle paddle, Rectangle bounds)

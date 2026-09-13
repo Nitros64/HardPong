@@ -260,12 +260,23 @@ public class SpriteManager : DrawableGameComponent {
         _collisionManager.ResolvePaddleBoundary(_player, Game.Window.ClientBounds);
         _collisionManager.ResolvePaddleBoundary(_player2, Game.Window.ClientBounds);
 
+        CollisionSound sound;
         if (_ball.Direction.X > 0)
-            _collisionManager.ResolveBallPaddle(_ball, _player2);// Right Paddle (Player 2)
+            sound = _collisionManager.ResolveBallPaddle(_ball, _player2);// Right Paddle (Player 2)
         else if (_ball.Direction.X < 0)
-            _collisionManager.ResolveBallPaddle(_ball, _player);// Left Paddle (Player 1)
+            sound = _collisionManager.ResolveBallPaddle(_ball, _player);// Left Paddle (Player 1)
+        else
+            sound = CollisionSound.None;
 
-        _collisionManager.ResolveBallBoundary(_ball, Game.Window.ClientBounds);
+        sound |= _collisionManager.ResolveBallBoundary(_ball, Game.Window.ClientBounds);
+
+        // Orden historico de audio: pala, puntuacion, muro
+        if (sound.HasFlag(CollisionSound.Paddle))
+            _ball.SoundBrick();
+        if (sound.HasFlag(CollisionSound.Score))
+            _ball.ScorePlaySoundEffects();
+        if (sound.HasFlag(CollisionSound.Wall))
+            _ball.SoundWall();
     }
     private void UpdateScores() {
         switch (_ball.Winner) {

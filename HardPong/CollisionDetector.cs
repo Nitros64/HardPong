@@ -9,18 +9,20 @@ internal class CollisionDetector
 {
     private readonly CollisionResponse _response = new();
 
-    public void ResolveBallPaddle(Ball ball, Paddle paddle)
+    public CollisionSound ResolveBallPaddle(Ball ball, Paddle paddle)
     {
         BallPaddleContact contact = CollisionBallPaddle.Detect(ball.CollisionRect, paddle.CollisionRect);
-        if (contact.Hit)
-            _response.ResolveBallPaddle(ball, paddle, contact);
+        return contact.Hit
+            ? _response.ResolveBallPaddle(ball, paddle, contact)
+            : CollisionSound.None;
     }
 
-    public void ResolveBallBoundary(Ball ball, Rectangle bounds)
+    public CollisionSound ResolveBallBoundary(Ball ball, Rectangle bounds)
     {
         BallBoundaryContact contact = CollisionBallWall.Detect(ball.CollisionRect, bounds);
-        if (contact.OutLeft || contact.OutRight || contact.OutTop || contact.OutBottom)
-            _response.ResolveBallBoundary(ball, contact, bounds);
+        return contact.OutLeft || contact.OutRight || contact.OutTop || contact.OutBottom
+            ? _response.ResolveBallBoundary(ball, contact, bounds)
+            : CollisionSound.None;
     }
 
     public void ResolvePaddleBoundary(Paddle paddle, Rectangle bounds)
