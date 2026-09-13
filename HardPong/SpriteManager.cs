@@ -64,13 +64,16 @@ public class SpriteManager : DrawableGameComponent {
     private readonly CollisionDetector _collisionManager;
 
     //Interfaces
-    private readonly IKeyboardInput _keyboardInput;
+    private readonly GameInputReader _inputReader;
+    private readonly Game1 _gameEngine;
 
     public SpriteManager(Game game) : base(game)
     {
         _gameState = new GameStateController();
        
         var gameEngine = (Game1) game;
+        _gameEngine = gameEngine;
+        _inputReader = new GameInputReader();
 
         int gameWidth = Game.Window.ClientBounds.Width;
         EscapeMenu = new MenuSimple(new Vector2(gameWidth / 2 - 90, 230),
@@ -90,7 +93,7 @@ public class SpriteManager : DrawableGameComponent {
         _pcWinner = new PositionChanger2(new Point(210, 150), new Point(220, 150));
         _collisionManager = new CollisionDetector();
 
-        _keyboardInput = new SpriteManagerInput(this,gameEngine);
+        _inputReader = new GameInputReader();
     }
 
     public override void Initialize()
@@ -230,7 +233,7 @@ public class SpriteManager : DrawableGameComponent {
     
     public override void Update(GameTime gameTime)
     {
-        _keyboardInput.CheckKeyboardInput();
+        Execute(_inputReader.ReadAction(_gameState.GetGameState(), () => EscapeMenu.Update()));
         if (_gameState.GetGameState() == GameStates.Stop)
         {
             // Los efectos de fin de partida solo se muestran en Stop: avanzan solo alli
@@ -248,6 +251,49 @@ public class SpriteManager : DrawableGameComponent {
             //Sprites Collisions
             ResolveCollisions();
             UpdateScores();
+        }
+    }
+
+    private void Execute(GameAction action)
+    {
+        switch (action)
+        {
+            case GameAction.StartMatch:
+                _gameState.Play();
+                break;
+            case GameAction.Pause:
+                _gameState.Pause();
+                break;
+            case GameAction.Resume:
+                _gameState.Resume();
+                break;
+            case GameAction.PrepareNextRound:
+                _gameState.PrepareNextRound();
+                if (IsMatchOver)
+                    Begin();
+                else{
+                    reset_soundEffects();
+                    ResetPosition();
+                    StartNextRound();
+                }
+                break;
+            case GameAction.OpenExitMenu:
+                _gameState.OpenExitMenu();
+                _inputReader.ResetGracePeriod();
+                break;
+            case GameAction.ContinueGame:
+                _gameState.ResumeFromExitMenu();
+                EscapeMenu.InputManager.Exit();
+                break;
+            case GameAction.ReturnToMainMenu:
+                Game.Components.Remove(this);
+                Game.Components.Add(_gameEngine.GetMenuPong);
+                EscapeMenu.InputManager.Exit();
+                _inputReader.ResetGracePeriod();
+                break;
+            case GameAction.QuitGame:
+                Game.Exit();
+                break;
         }
     }
 
