@@ -19,14 +19,13 @@ internal class KeyInputManager
     }
 
     public void Begin() {
-        var currentKeyState = Keyboard.GetState(); // Solo una llamada
+        _newKeyState = Keyboard.GetState(); // Solo una llamada
         if (_firstTime) {
-            if (_triggers.Any(currentKeyState.IsKeyDown))
+            if (_triggers.Any(_newKeyState.IsKeyDown))
                 return;
 
             _firstTime = false;
         }
-        _newKeyState = Keyboard.GetState();            
     }
 
     public bool CheckPressedKey(Keys key) {
