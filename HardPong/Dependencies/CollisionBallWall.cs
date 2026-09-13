@@ -4,38 +4,37 @@ using Microsoft.Xna.Framework;
 using static HardPong.SpriteClass.Ball;
 
 namespace HardPong.Dependencies;
-class CollisionBallWall : ISpriteCollisionEnvironment
+internal class CollisionBallWall : IBallBoundaryCollision
 {
-    public void SpriteCollisionEnvironment(Sprite s1, Rectangle r2)
+    public void Resolve(Ball ball, Rectangle bounds)
     {
-        Ball mainBall = (Ball) s1;
-        Rectangle rectball = mainBall.CollisionRect;
+        Rectangle rectball = ball.CollisionRect;
 
-        if(rectball.X + rectball.Width >= r2.Width)
+        if(rectball.X + rectball.Width >= bounds.Width)
         {//Pierde el jugador izquierdo
-            mainBall.PositionX = r2.Width - rectball.Width;
-            mainBall.InvertDirectionHorizontal();//Invertir direccion Horizontal
-            mainBall.Winner = PlayerNumber.Player1;
-            mainBall.ScorePlaySoundEffects();
+            ball.PositionX = bounds.Width - rectball.Width;
+            ball.InvertDirectionHorizontal();//Invertir direccion Horizontal
+            ball.Winner = PlayerNumber.Player1;
+            ball.ScorePlaySoundEffects();
         }
         else if (rectball.X <= 0)
         {//Pierde el jugador derecho
-            mainBall.PositionX = 0;
-            mainBall.InvertDirectionHorizontal();
-            mainBall.Winner = PlayerNumber.Player2;
-            mainBall.ScorePlaySoundEffects();
+            ball.PositionX = 0;
+            ball.InvertDirectionHorizontal();
+            ball.Winner = PlayerNumber.Player2;
+            ball.ScorePlaySoundEffects();
         }
-        if (rectball.Y + rectball.Height >= r2.Height)
+        if (rectball.Y + rectball.Height >= bounds.Height)
         {
-            mainBall.PositionY = r2.Height - mainBall.SpriteFrameSize.Y;
-            mainBall.InvertDirectionVertical();
-            mainBall.SoundWall();
+            ball.PositionY = bounds.Height - ball.SpriteFrameSize.Y;
+            ball.InvertDirectionVertical();
+            ball.SoundWall();
         }
         else if (rectball.Y<= 0)
         {
-            mainBall.PositionY = 0;
-            mainBall.InvertDirectionVertical();
-            mainBall.SoundWall();
-        }            
+            ball.PositionY = 0;
+            ball.InvertDirectionVertical();
+            ball.SoundWall();
+        }
     }
 }

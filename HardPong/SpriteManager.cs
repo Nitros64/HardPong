@@ -61,7 +61,6 @@ public class SpriteManager : DrawableGameComponent {
     private readonly CollisionDetector _collisionManager;
 
     //Interfaces
-    private ISpriteCollision _spriteCollision;
     private readonly IKeyboardInput _keyboardInput;
 
     public SpriteManager(Game game) : base(game)
@@ -241,15 +240,15 @@ public class SpriteManager : DrawableGameComponent {
             _player2.Update();
             
             //Sprites Collisions
-            _collisionManager.collision_paddle_wall(_player, Game.Window.ClientBounds);
-            _collisionManager.collision_paddle_wall(_player2, Game.Window.ClientBounds);             
-            
-            if(_ball.Direction.X > 0 )
-                _collisionManager.collision_ball_paddle(_ball,_player2);// Right Paddle (Player 2) 
-			else if(_ball.Direction.X < 0)
-			    _collisionManager.collision_ball_paddle(_ball,_player);// Left Paddle (Player 1)
+            _collisionManager.ResolvePaddleBoundary(_player, Game.Window.ClientBounds);
+            _collisionManager.ResolvePaddleBoundary(_player2, Game.Window.ClientBounds);
 
-            _collisionManager.collision_ball_wall(_ball,Game.Window.ClientBounds);            
+            if(_ball.Direction.X > 0 )
+                _collisionManager.ResolveBallPaddle(_ball,_player2);// Right Paddle (Player 2)
+			else if(_ball.Direction.X < 0)
+			    _collisionManager.ResolveBallPaddle(_ball,_player);// Left Paddle (Player 1)
+
+            _collisionManager.ResolveBallBoundary(_ball,Game.Window.ClientBounds);
             UpdateScores();
         }
     }

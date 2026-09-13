@@ -3,13 +3,13 @@ using HardPong.SpriteClass;
 using Microsoft.Xna.Framework;
 
 namespace HardPong.Dependencies;
-class CollisionPaddleWall : ISpriteCollisionEnvironment
+internal class CollisionPaddleWall : IPaddleBoundaryCollision
 {
-    public void SpriteCollisionEnvironment(Sprite s1, Rectangle clientBounds)
+    public void Resolve(Paddle paddle, Rectangle bounds)
     {
-        if (s1.PositionY <= 0)
-            s1.PositionY = 0;
-        if (s1.PositionY + s1.SpriteFrameSize.Y >= clientBounds.Height)
-            s1.PositionY = clientBounds.Height - s1.SpriteFrameSize.Y;
+        if (paddle.PositionY <= 0)
+            paddle.PositionY = 0;
+        if (paddle.PositionY + paddle.SpriteFrameSize.Y >= bounds.Height)
+            paddle.PositionY = bounds.Height - paddle.SpriteFrameSize.Y;
     }
 }
