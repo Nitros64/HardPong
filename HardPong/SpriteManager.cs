@@ -20,9 +20,6 @@ public class SpriteManager : DrawableGameComponent {
     
     //Menu Simple
 
-    //Input Manager
-    private readonly KeyInputManager _inputManager;
-                
     //SpriteBatch for drawing
     private SpriteBatch _spriteBatch;
 
@@ -68,8 +65,6 @@ public class SpriteManager : DrawableGameComponent {
         _gameState = new GameStateController();
        
         var gameEngine = (Game1) game;
-        _inputManager = new KeyInputManager();
-        _inputManager.AddTriggerKeys(Keys.Enter, Keys.Escape);
 
         int gameWidth = Game.Window.ClientBounds.Width;
         EscapeMenu = new MenuSimple(new Vector2(gameWidth / 2 - 90, 230),
