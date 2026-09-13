@@ -19,7 +19,8 @@ public class GameStateController : IGameState
 
     public void Play()
     {
-        _currentState = GameEnum.GameStates.Playing;
+        if (_currentState == GameEnum.GameStates.Ready)
+            _currentState = GameEnum.GameStates.Playing;
     }
 
     public void Pause()
@@ -42,23 +43,25 @@ public class GameStateController : IGameState
         };
     }
 
-    public void SetGameState(GameEnum.GameStates mygameState)
+    public void OpenExitMenu()
     {
-        _currentState = mygameState;
+        if (_currentState == GameEnum.GameStates.ExitMenu)
+            return;
+
+        _oldState = _currentState;
+        _currentState = GameEnum.GameStates.ExitMenu;
+    }
+
+    public void ResumeFromExitMenu()
+    {
+        if (_currentState != GameEnum.GameStates.ExitMenu)
+            return;
+
+        _currentState = _oldState;
     }
 
     public GameEnum.GameStates GetGameState()
     {
         return _currentState;
     }
-    
-    public void SetGameOldState(GameEnum.GameStates myGameOldState)
-    {
-        _oldState = myGameOldState;
-    }
-
-    public GameEnum.GameStates GetGameOldState()
-    {
-        return _oldState;
-    }        
 }

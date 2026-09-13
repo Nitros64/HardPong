@@ -8,6 +8,7 @@ internal interface IGameState
     void Play();
     void Pause();
     void Stop();
-    void SetGameState(GameStates mygameState);
+    void OpenExitMenu();
+    void ResumeFromExitMenu();
     GameEnum.GameStates GetGameState();
 }

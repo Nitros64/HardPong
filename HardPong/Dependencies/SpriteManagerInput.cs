@@ -29,7 +29,7 @@ class SpriteManagerInput : IKeyboardInput
         else if (mystate == GameStates.ExitMenu) {
             switch (_spritemanager.EscapeMenu.Update()){               
                 case 0: case 1://Escape //Enter Continue
-                    gsc.SetGameState(gsc.GetGameOldState());
+                    gsc.ResumeFromExitMenu();
                     _spritemanager.EscapeMenu.InputManager.Exit();
                     break;
                 case 2: //Return Main Menu
@@ -55,7 +55,7 @@ class SpriteManagerInput : IKeyboardInput
             switch (gsc.GetGameState())
             {
                 case GameStates.Ready:
-                    gsc.SetGameState(GameStates.Playing);
+                    gsc.Play();
                     break;
                 case GameStates.Paused:
                     gsc.Pause();//toggle between Playing and Paused
@@ -77,9 +77,8 @@ class SpriteManagerInput : IKeyboardInput
         }
         else if (_inputManager.CheckPressedKey(Keys.Escape))
         {
-            gsc.SetGameOldState(gsc.GetGameState());
-            gsc.SetGameState(GameStates.ExitMenu);
-            _inputManager.Exit();             
+            gsc.OpenExitMenu();
+            _inputManager.Exit();
         }
         _inputManager.End();
     }
