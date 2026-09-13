@@ -140,4 +140,11 @@ public class Ball : Sprite {
     {
         _soundScore.StopSoundEffect();
     }
+
+    public void DisposeSounds()
+    {
+        _soundBrick?.Dispose();
+        _soundWall?.Dispose();
+        _soundScore?.Dispose();
+    }
 }

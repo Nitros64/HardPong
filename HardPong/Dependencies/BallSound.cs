@@ -19,4 +19,9 @@ internal class BallSound : ISoundEffect
     {
         _soundEffectInstance.Stop();
     }
+
+    public void Dispose()
+    {
+        _soundEffectInstance.Dispose();
+    }
 }

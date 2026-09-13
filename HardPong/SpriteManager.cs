@@ -146,6 +146,13 @@ public class SpriteManager : DrawableGameComponent {
                                Game.Content.Load<Texture2D>(@"Images/triangulo"),
                                Game.Content.Load<SoundEffect>(@"Audio/laser-shoot"));
     }
+    protected override void UnloadContent()
+    {
+        // Solo recursos creados a mano; lo cargado via ContentManager lo libera el framework.
+        _whiteRectangle?.Dispose();
+        _ball?.DisposeSounds();
+    }
+
     private void LoadContentSprites() {
         _player1PositionX = 10;
         _player1PositionY = Game.Window.ClientBounds.Height / 2 - 30;
