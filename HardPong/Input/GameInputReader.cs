@@ -16,7 +16,7 @@ internal class GameInputReader
         _inputManager.AddTriggerKeys(Keys.Enter, Keys.Escape);
     }
 
-    public GameAction ReadAction(GameStates state, Func<int> exitMenuSelection)
+    public GameAction ReadAction(GameStates state, Func<MenuResult> exitMenuSelection)
     {
         if (state == GameStates.ExitMenu)
             return GameInputMapper.FromExitMenu(exitMenuSelection());

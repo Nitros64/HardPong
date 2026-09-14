@@ -140,15 +140,11 @@ public class MainMenuScreen : GameScreen {
     private void HandleMenuInput()
     {
         switch (_menuSimple.Update()) {
-            case 1:
+            case { Kind: MenuResultKind.Confirmed, SelectedIndex: 0 }:
                 _navigation.StartGame();
                 break;
-            case 2:
-                break;
-            case 3:
-                break;
-            case 0:
-            case 4:
+            case { Kind: MenuResultKind.Cancelled }:
+            case { Kind: MenuResultKind.Confirmed, SelectedIndex: 3 }:
                 _navigation.QuitGame();
                 break;
         }

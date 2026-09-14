@@ -24,12 +24,12 @@ internal static class GameInputMapper
         };
     }
 
-    public static GameAction FromExitMenu(int option) => option switch
+    public static GameAction FromExitMenu(MenuResult result) => result switch
     {
-        0 => GameAction.ContinueGame,   // Escape
-        1 => GameAction.ContinueGame,   // Enter sobre CONTINUE
-        2 => GameAction.ReturnToMainMenu,
-        3 => GameAction.QuitGame,
+        { Kind: MenuResultKind.Cancelled } => GameAction.ContinueGame,
+        { Kind: MenuResultKind.Confirmed, SelectedIndex: 0 } => GameAction.ContinueGame,
+        { Kind: MenuResultKind.Confirmed, SelectedIndex: 1 } => GameAction.ReturnToMainMenu,
+        { Kind: MenuResultKind.Confirmed, SelectedIndex: 2 } => GameAction.QuitGame,
         _ => GameAction.None
     };
 }

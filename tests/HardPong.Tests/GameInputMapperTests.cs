@@ -50,15 +50,26 @@ public class GameInputMapperTests
     }
 
     [Theory]
-    [InlineData(0, HardPong.GameAction.ContinueGame)]  // Escape
-    [InlineData(1, HardPong.GameAction.ContinueGame)]  // Enter sobre CONTINUE
-    [InlineData(2, HardPong.GameAction.ReturnToMainMenu)]
-    [InlineData(3, HardPong.GameAction.QuitGame)]
-    [InlineData(-1, HardPong.GameAction.None)]         // ninguna seleccion este frame
-    public void FromExitMenu_MapsSelectionToAction(int option, HardPong.GameAction expected)
+    [InlineData(0, HardPong.GameAction.ContinueGame)]
+    [InlineData(1, HardPong.GameAction.ReturnToMainMenu)]
+    [InlineData(2, HardPong.GameAction.QuitGame)]
+    [InlineData(3, HardPong.GameAction.None)]
+    public void FromExitMenu_MapsConfirmedSelectionToAction(int option, HardPong.GameAction expected)
     {
-        var action = HardPong.GameInputMapper.FromExitMenu(option);
+        var action = HardPong.GameInputMapper.FromExitMenu(MenuResult.Confirmed(option));
 
         Assert.Equal(expected, action);
+    }
+
+    [Fact]
+    public void FromExitMenu_WhenCancelled_ContinuesGame()
+    {
+        Assert.Equal(GameAction.ContinueGame, GameInputMapper.FromExitMenu(MenuResult.Cancelled));
+    }
+
+    [Fact]
+    public void FromExitMenu_WithoutAction_DoesNothing()
+    {
+        Assert.Equal(GameAction.None, GameInputMapper.FromExitMenu(MenuResult.None));
     }
 }

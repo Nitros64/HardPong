@@ -53,7 +53,7 @@ internal class MenuSimple
         _selectArrow = new SelectArrow(arrowSprite, _startlocation, arrowSound);
     }
 
-    private int InputHandler() {
+    private MenuResult InputHandler() {
         InputManager.Begin();
         //Chequea si la posicion de la flecha ha cambiado
         if (InputManager.CheckPressedKey(Up)) // Flecha Para arriba
@@ -73,17 +73,17 @@ internal class MenuSimple
         if (InputManager.CheckPressedKey(Start))
         {
             InputManager.End();
-            return _selection.SelectedIndex + 1;
+            return MenuResult.Confirmed(_selection.SelectedIndex);
         }
 
         if (InputManager.CheckPressedKey(Escape))
         {
             InputManager.End();
-            return 0;
+            return MenuResult.Cancelled;
         }
 
         InputManager.End();
-        return -1;
+        return MenuResult.None;
     }
 
     public bool OPEN_KEY(Keys open)
@@ -99,7 +99,7 @@ internal class MenuSimple
         InputManager.Exit();
     }
 
-    public int Update() {            
+    public MenuResult Update() {
         return InputHandler();
     }
     public void Draw(GameTime gameTime, SpriteBatch spriteBatch) {
