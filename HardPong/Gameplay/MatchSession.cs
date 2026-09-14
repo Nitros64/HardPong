@@ -7,7 +7,8 @@ namespace HardPong;
 internal enum MatchEndResult
 {
     NextRound,
-    MatchWon
+    MatchWon,
+    Ignored
 }
 
 // Coordina la partida: estado, marcador, entidades, fisica y audio.
@@ -68,10 +69,14 @@ internal class MatchSession
 
     public void OpenExitMenu() => _gameState.OpenExitMenu();
 
-    // Prepara la ronda siguiente; si el partido ya tenia campeon, lo resetea
-    // y lo comunica para que la pantalla dispare su presentacion de victoria.
+    // Prepara la ronda siguiente; SOLO procede desde Stop (la transicion y sus
+    // efectos se aceptan o rechazan juntos). Si el partido tenia campeon, lo
+    // resetea y lo comunica para que la pantalla dispare su presentacion.
     public MatchEndResult PrepareNextRound()
     {
+        if (_gameState.GetGameState() != GameStates.Stop)
+            return MatchEndResult.Ignored;
+
         _gameState.PrepareNextRound();
         if (!IsMatchOver)
         {
@@ -83,9 +88,12 @@ internal class MatchSession
         return MatchEndResult.MatchWon;
     }
 
-    // Simula un frame de juego (solo en Playing): movimiento, colisiones y punto.
+    // Simula un frame de juego; SOLO tiene efecto en Playing.
     public void SimulateFrame(Rectangle court)
     {
+        if (_gameState.GetGameState() != GameStates.Playing)
+            return;
+
         _ball.Update();
         _player1.Update();
         _player2.Update();

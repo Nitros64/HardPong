@@ -52,7 +52,7 @@ public class MatchSessionTests
     }
 
     [Fact]
-    public void PauseAndResume_SwitchWithoutTouchingTheBall()
+    public void PauseAndResume_StopsSimulationUntilResumed()
     {
         var match = NewMatch();
         match.Execute(HardPong.GameAction.StartMatch);
@@ -60,10 +60,13 @@ public class MatchSessionTests
 
         match.Execute(HardPong.GameAction.Pause);
         Assert.Equal(GameStates.Paused, match.State);
+        match.SimulateFrame(Court);
+        Assert.Equal(ballBefore, match.Ball.Position);
 
         match.Execute(HardPong.GameAction.Resume);
         Assert.Equal(GameStates.Playing, match.State);
-        Assert.Equal(ballBefore, match.Ball.Position);
+        match.SimulateFrame(Court);
+        Assert.Equal(ballBefore + new Vector2(Ball.BallSpeedX, Ball.BallSpeedY), match.Ball.Position);
     }
 
     [Fact]
@@ -149,13 +152,15 @@ public class MatchSessionTests
         }
         Assert.Equal(MatchEndResult.MatchWon, result);
 
-        // El flujo real tras la victoria anade RestartMatch() en la pantalla:
-        match.ResetMatch();
-
         Assert.Equal(GameStates.Ready, match.State);
         Assert.Equal(0, match.Score.Player1);
         Assert.Equal(0, match.Score.Player2);
+        Assert.Equal(PlayerId.None, match.Score.LastPointWinner);
         Assert.Equal(PlayerId.None, match.Score.MatchWinner);
         Assert.False(match.IsMatchOver);
+        Assert.Equal(new Vector2(Court.Width / 2 - Ball.BallWidth / 2,
+            Court.Height / 2 - Ball.BallHeight / 2), match.Ball.Position);
+        Assert.Equal(new Vector2(10, Court.Height / 2 - Paddle.BrickHeight / 2), match.Player1.Position);
+        Assert.Equal(new Vector2(Court.Width - 25, Court.Height / 2 - Paddle.BrickHeight / 2), match.Player2.Position);
     }
 }
