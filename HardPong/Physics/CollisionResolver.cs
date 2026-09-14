@@ -2,9 +2,9 @@ using Microsoft.Xna.Framework;
 
 namespace HardPong;
 
-// Orquesta el orden: primero detectar (puro), luego responder.
-// El orden de las colisiones lo fija SpriteManager en su Update.
-internal class CollisionDetector
+// Coordina la deteccion de contactos y la aplicacion de sus respuestas fisicas.
+// MatchSession determina el orden en que se resuelven las colisiones.
+internal class CollisionResolver
 {
     private readonly CollisionResponse _response = new();
 

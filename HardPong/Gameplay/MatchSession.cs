@@ -17,7 +17,7 @@ internal class MatchSession
 {
     private readonly GameStateController _gameState = new();
     private readonly MatchScore _score = new();
-    private readonly CollisionDetector _collisionManager = new();
+    private readonly CollisionResolver _collisionResolver = new();
 
     private readonly Ball _ball;
     private readonly Paddle _player1, _player2;
@@ -96,18 +96,18 @@ internal class MatchSession
         _player1.Update();
         _player2.Update();
 
-        _collisionManager.ResolvePaddleBoundary(_player1, court);
-        _collisionManager.ResolvePaddleBoundary(_player2, court);
+        _collisionResolver.ResolvePaddleBoundary(_player1, court);
+        _collisionResolver.ResolvePaddleBoundary(_player2, court);
 
         CollisionEvents events;
         if (_ball.Direction.X > 0)
-            events = _collisionManager.ResolveBallPaddle(_ball, _player2);// Right Paddle (Player 2)
+            events = _collisionResolver.ResolveBallPaddle(_ball, _player2);// Right Paddle (Player 2)
         else if (_ball.Direction.X < 0)
-            events = _collisionManager.ResolveBallPaddle(_ball, _player1);// Left Paddle (Player 1)
+            events = _collisionResolver.ResolveBallPaddle(_ball, _player1);// Left Paddle (Player 1)
         else
             events = CollisionEvents.None;
 
-        BallBoundaryOutcome boundary = _collisionManager.ResolveBallBoundary(_ball, court);
+        BallBoundaryOutcome boundary = _collisionResolver.ResolveBallBoundary(_ball, court);
         events |= boundary.Events;
         if (boundary.Scorer != PlayerId.None)
             _score.AwardPoint(boundary.Scorer);

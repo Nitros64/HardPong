@@ -24,7 +24,7 @@ public class CollisionResponseTests
             if (signY < 0) ball.InvertDirectionVertical();
             var paddle = new Paddle(new Vector2(100, 100), new StationaryController());
 
-            var events = new CollisionDetector().ResolveBallPaddle(ball, paddle);
+            var events = new CollisionResolver().ResolveBallPaddle(ball, paddle);
 
             Assert.Equal(CollisionEvents.PaddleHit, events);
             Assert.Equal(-signX * expectedSpeedX, ball.Direction.X, 4);
@@ -55,7 +55,7 @@ public class CollisionResponseTests
             var ball = new Ball(new Rectangle(0, 0, 800, 480));
             ball.SetPosition(90, ballY);
 
-            var events = new CollisionDetector().ResolveBallPaddle(ball, paddle);
+            var events = new CollisionResolver().ResolveBallPaddle(ball, paddle);
 
             Assert.Equal(hit ? CollisionEvents.PaddleHit : CollisionEvents.None, events);
             Assert.Equal(restorePosition ? spawn : movedPosition, paddle.Position);
