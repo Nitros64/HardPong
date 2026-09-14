@@ -1,4 +1,3 @@
-using HardPong.Dependencies;
 using Microsoft.Xna.Framework;
 using Xunit;
 

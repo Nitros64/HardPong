@@ -1,4 +1,3 @@
-using HardPong.SpriteClass;
 using Microsoft.Xna.Framework;
 using Xunit;
 

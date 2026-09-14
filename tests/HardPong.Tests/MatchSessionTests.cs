@@ -1,6 +1,3 @@
-using HardPong.Dependencies;
-using HardPong.Interfaces;
-using HardPong.SpriteClass;
 using Microsoft.Xna.Framework;
 using Xunit;
 using GameStates = HardPong.GameEnum.GameStates;
