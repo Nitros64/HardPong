@@ -10,7 +10,7 @@ namespace HardPong;
 
 // Pantalla de juego: construye las entidades, lee acciones y dibuja.
 // La logica de la partida vive en MatchSession.
-public class GameplayScreen : DrawableGameComponent {
+public class GameplayScreen : GameScreen {
 
     //Menu Simple
 
@@ -85,10 +85,19 @@ public class GameplayScreen : DrawableGameComponent {
         _pcWinner = new PositionChanger2(new Point(210, 150), new Point(220, 150));
     }
 
-    public override void Initialize()
+    protected override void OnEnter()
     {
-        base.Initialize();
+        _inputReader.ResetGracePeriod();
+        EscapeMenu.InputManager.Exit();
         RestartMatch();
+    }
+
+    protected override void OnLeave()
+    {
+        _inputReader.ResetGracePeriod();
+        EscapeMenu.InputManager.Exit();
+        _pongAudio.StopAll();
+        MediaPlayer.Stop();
     }
 
     // Reinicia la partida y su presentacion (musica y menu de pausa)
@@ -96,15 +105,14 @@ public class GameplayScreen : DrawableGameComponent {
     {
         _match.ResetMatch();
         MediaPlayer.Stop();
+        MediaPlayer.IsRepeating = true;
+        MediaPlayer.Volume = 0.3f;
         MediaPlayer.Play(_music);
         EscapeMenu.Initialize();
     }
 
     protected override void LoadContent()
     {
-        // La pantalla puede re-entrar: libera lo manual previo antes de recrear
-        ReleaseOwnResources();
-
         _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
         LoadContentSprites(); //Load Sprites
         LoadContentFont();  //Load Font
@@ -129,6 +137,7 @@ public class GameplayScreen : DrawableGameComponent {
         _pongAudio = null;
         _ballRenderer = null;
         _paddleRenderer = null;
+        _match = null;
     }
 
     private void LoadContentSprites() {
@@ -166,8 +175,6 @@ public class GameplayScreen : DrawableGameComponent {
     private void LoadContentMusic() {
         //Load Musica
         _music = Game.Content.Load<Song>(@"Audio/inspace");
-        MediaPlayer.IsRepeating = true;
-        MediaPlayer.Volume = 0.3f;
     }
 
     private void BuildCentralPaddles()
@@ -185,6 +192,8 @@ public class GameplayScreen : DrawableGameComponent {
     public override void Update(GameTime gameTime)
     {
         Execute(_inputReader.ReadAction(_match.State, () => EscapeMenu.Update()));
+        if (!IsActive)
+            return;
         if (_match.State == GameStates.Stop)
         {
             // Los efectos de fin de partida solo se muestran en Stop: avanzan solo alli
@@ -217,8 +226,6 @@ public class GameplayScreen : DrawableGameComponent {
                 EscapeMenu.InputManager.Exit();
                 break;
             case GameAction.ReturnToMainMenu:
-                EscapeMenu.InputManager.Exit();
-                _inputReader.ResetGracePeriod();
                 _navigation.ShowMainMenu();
                 break;
             case GameAction.QuitGame:

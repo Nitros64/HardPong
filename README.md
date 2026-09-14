@@ -10,7 +10,7 @@
 ![iOS](https://img.shields.io/badge/iOS-000000?logo=ios&logoColor=white)
 
 A classic Pong game developed on **C#** with **MonoGame**, built around small, testable pieces:
-input becomes explicit actions, a match session owns the rules, and the screens only draw.
+input becomes explicit actions, a match session owns the rules, and the screens handle presentation and navigation requests.
 
 ![image](https://github.com/user-attachments/assets/71dae815-c7bb-4219-8a19-0ceaa67c40f3)
 
@@ -59,3 +59,8 @@ HardPong/
 The flow is one-directional: input is read into `GameAction`s, `MatchSession` executes them
 and simulates frames, and the screens render the entities' state. Physics never plays sounds
 and never draws.
+
+`GameScreen` separates resource loading from activation: `Initialize` loads content once,
+`Enter` prepares each visit, and `Leave` stops playback and rearms input without releasing resources.
+Entering gameplay starts a fresh match. `PongGame` disposes both screens at shutdown,
+including the inactive screen, before MonoGame releases shared content and the graphics device.

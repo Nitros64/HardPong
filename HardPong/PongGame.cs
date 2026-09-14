@@ -7,7 +7,8 @@ public class PongGame : Game, IScreenNavigation
     private readonly GraphicsDeviceManager _graphics;
     private readonly MainMenuScreen _mainMenu;
     private readonly GameplayScreen _gameplay;
-    private DrawableGameComponent _activeScreen;
+    private GameScreen _activeScreen;
+    private bool _screensDisposed;
 
     public PongGame()
     {
@@ -20,8 +21,8 @@ public class PongGame : Game, IScreenNavigation
 
     protected override void Initialize()
     {
-        ShowMainMenu();
         base.Initialize();
+        ShowMainMenu();
     }
 
     protected override void Update(GameTime gameTime) => base.Update(gameTime);
@@ -38,17 +39,48 @@ public class PongGame : Game, IScreenNavigation
 
     public void QuitGame() => Exit();
 
-    private void SwitchScreen(DrawableGameComponent screen)
+    private void SwitchScreen(GameScreen screen)
     {
         if (_activeScreen == screen)
             return;
 
         if (_activeScreen != null)
+        {
+            _activeScreen.Leave();
             Components.Remove(_activeScreen);
+        }
 
         _activeScreen = screen;
-        // MonoGame llama a Initialize al añadir una pantalla durante el juego.
-        // GameplayScreen mantiene ahí el reinicio de la partida en cada entrada.
         Components.Add(screen);
+        screen.Enter();
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        try
+        {
+            if (disposing && !_screensDisposed)
+            {
+                _screensDisposed = true;
+                // PongGame es dueño de ambas pantallas, incluidas las retiradas.
+                // Las retiramos antes de liberar para evitar un segundo Dispose
+                // desde Game y conservar disponibles el dispositivo y el contenido.
+                Components.Remove(_mainMenu);
+                Components.Remove(_gameplay);
+                _activeScreen = null;
+                try
+                {
+                    _mainMenu?.Dispose();
+                }
+                finally
+                {
+                    _gameplay?.Dispose();
+                }
+            }
+        }
+        finally
+        {
+            base.Dispose(disposing);
+        }
     }
 }

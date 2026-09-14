@@ -24,6 +24,13 @@ internal class PongAudio : IDisposable
 
     public void StopScore() => _score.StopSoundEffect();
 
+    public void StopAll()
+    {
+        _paddle.StopSoundEffect();
+        _wall.StopSoundEffect();
+        _score.StopSoundEffect();
+    }
+
     public void Dispose()
     {
         _paddle.Dispose();

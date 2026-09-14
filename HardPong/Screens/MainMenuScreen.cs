@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Audio;
 
 namespace HardPong;
 
-public class MainMenuScreen : DrawableGameComponent {
+public class MainMenuScreen : GameScreen {
     //SpriteBatch for drawing
     private SpriteBatch _spriteBatch;
     private readonly IScreenNavigation _navigation;
@@ -46,28 +46,31 @@ public class MainMenuScreen : DrawableGameComponent {
         _colorChanger = new ColorChanger(10, Color.White, Color.Yellow);
     }
 
-    public override void Initialize()
+    protected override void OnEnter()
     {
-        base.Initialize();
-        MediaPlayer.Play(_music);
+        _menuSimple.InputManager.Exit();
         _menuSimple.Initialize();
+        MediaPlayer.IsRepeating = true;
+        MediaPlayer.Volume = 0.3f;
+        MediaPlayer.Play(_music);
+    }
+
+    protected override void OnLeave()
+    {
+        _menuSimple.InputManager.Exit();
+        MediaPlayer.Stop();
     }
 
     protected override void LoadContent()
     {
-        // La pantalla puede re-entrar: libera lo manual previo antes de recrear
-        _spriteBatch?.Dispose();
         _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
         _nesFont = Game.Content.Load<SpriteFont>(@"Font/NESfont");
         _nesFont2 = Game.Content.Load<SpriteFont>(@"Font/NESfont2");
 
         //Load Musica
         _music = Game.Content.Load<Song>(@"Audio/dinothunder");
-        MediaPlayer.IsRepeating = true;
-        MediaPlayer.Volume = 0.3f;
 
-        //Las bolas decorativas se regeneran en cada entrada
-        _randomBalls.Clear();
+        // Las bolas decorativas y sus recursos se conservan entre entradas.
         Random random = new Random(); // generador de números aleatorios
         for (int cont = 0; cont < 30; ++cont) {
             int randomlocationX = random.Next(50, 590);
@@ -94,9 +97,18 @@ public class MainMenuScreen : DrawableGameComponent {
                                Game.Content.Load<SoundEffect>(@"Audio/laser-shoot"));
     }
         
+    protected override void UnloadContent()
+    {
+        _spriteBatch?.Dispose();
+        _spriteBatch = null;
+        _randomBalls.Clear();
+    }
+
     public override void Update(GameTime gameTime)
     {
         HandleMenuInput();
+        if (!IsActive)
+            return;
         _scaleChanger.Advance();
         _colorChanger.Advance();
         foreach (Sprite s in _randomBalls)
@@ -129,7 +141,6 @@ public class MainMenuScreen : DrawableGameComponent {
     {
         switch (_menuSimple.Update()) {
             case 1:
-                _menuSimple.InputManager.Exit();
                 _navigation.StartGame();
                 break;
             case 2:
