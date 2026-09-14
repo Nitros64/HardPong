@@ -60,12 +60,11 @@ public class GameplayScreen : DrawableGameComponent {
 
     //Input
     private readonly GameInputReader _inputReader;
-    private readonly PongGame _gameEngine;
+    private readonly IScreenNavigation _navigation;
 
-    public GameplayScreen(Game game) : base(game)
+    public GameplayScreen(Game game, IScreenNavigation navigation) : base(game)
     {
-        var gameEngine = (PongGame) game;
-        _gameEngine = gameEngine;
+        _navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
         _inputReader = new GameInputReader();
 
         int gameWidth = Game.Window.ClientBounds.Width;
@@ -218,13 +217,12 @@ public class GameplayScreen : DrawableGameComponent {
                 EscapeMenu.InputManager.Exit();
                 break;
             case GameAction.ReturnToMainMenu:
-                Game.Components.Remove(this);
-                Game.Components.Add(_gameEngine.GetMenuPong);
                 EscapeMenu.InputManager.Exit();
                 _inputReader.ResetGracePeriod();
+                _navigation.ShowMainMenu();
                 break;
             case GameAction.QuitGame:
-                Game.Exit();
+                _navigation.QuitGame();
                 break;
             default:
                 _match.Execute(action); // StartMatch, Pause, Resume

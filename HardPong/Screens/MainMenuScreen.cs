@@ -11,7 +11,7 @@ namespace HardPong;
 public class MainMenuScreen : DrawableGameComponent {
     //SpriteBatch for drawing
     private SpriteBatch _spriteBatch;
-    private readonly PongGame _gameEngine;
+    private readonly IScreenNavigation _navigation;
                 
     //Bolitas mudas
     private readonly List <Sprite> _randomBalls;
@@ -33,9 +33,9 @@ public class MainMenuScreen : DrawableGameComponent {
     private readonly ScaleChanger _scaleChanger;
     private readonly ColorChanger _colorChanger;
 
-    public MainMenuScreen(Game game) : base(game)
+    public MainMenuScreen(Game game, IScreenNavigation navigation) : base(game)
     {
-        _gameEngine = (PongGame) game;
+        _navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
         _randomBalls = new List<Sprite>();
         Vector2 menuPosition = new Vector2(game.Window.ClientBounds.Width / 2 - 110, 
                                            game.Window.ClientBounds.Height / 2 + 50);
@@ -89,14 +89,14 @@ public class MainMenuScreen : DrawableGameComponent {
             
         } // fin de for
         base.LoadContent();
-        _menuSimple.LoadContent(_gameEngine.Content.Load<SpriteFont>(@"Font/NESfont2"), 
-                               _gameEngine.Content.Load<Texture2D>(@"Images/triangulo"),
-                               _gameEngine.Content.Load<SoundEffect>(@"Audio/laser-shoot"));
+        _menuSimple.LoadContent(Game.Content.Load<SpriteFont>(@"Font/NESfont2"),
+                               Game.Content.Load<Texture2D>(@"Images/triangulo"),
+                               Game.Content.Load<SoundEffect>(@"Audio/laser-shoot"));
     }
         
     public override void Update(GameTime gameTime)
     {
-        checkMainMenuKey(Game.Window.ClientBounds);
+        HandleMenuInput();
         _scaleChanger.Advance();
         _colorChanger.Advance();
         foreach (Sprite s in _randomBalls)
@@ -125,13 +125,12 @@ public class MainMenuScreen : DrawableGameComponent {
         _spriteBatch.End();
     }
 
-    public void checkMainMenuKey(Rectangle rect)
+    private void HandleMenuInput()
     {
         switch (_menuSimple.Update()) {
             case 1:
-                Game.Components.Remove(this);// Controlar con exception
                 _menuSimple.InputManager.Exit();
-                Game.Components.Add(_gameEngine.GetSpriteManager);// Controlar con exception                    
+                _navigation.StartGame();
                 break;
             case 2:
                 break;
@@ -139,7 +138,7 @@ public class MainMenuScreen : DrawableGameComponent {
                 break;
             case 0:
             case 4:
-                Game.Exit();
+                _navigation.QuitGame();
                 break;
         }
     }
