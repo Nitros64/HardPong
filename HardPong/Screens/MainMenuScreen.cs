@@ -85,8 +85,8 @@ public class MainMenuScreen : GameScreen {
                                 0,
                                 new Point(0, 0),
                                 new Point(0, 0),
-                                new Vector2(randomSpeedX, randomSpeedY));
-            addSprite.SoloMovementDependency(new BallSimple());
+                                new Vector2(randomSpeedX, randomSpeedY),
+                                new BallSimple());
             addSprite.SetColor(Color.Yellow);
             _randomBalls.Add(addSprite);
             

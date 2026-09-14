@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -20,11 +21,13 @@ public class Sprite {
     private float _scale = 1f;
     private Color _spriteColor;
 
-    private ISpriteAutomaticMovement _spriteSoloMovement;
+    private readonly ISpriteAutomaticMovement _movement;
 
     public Sprite(Texture2D textureImage, Vector2 position, Point frameSize,
-        int collisionOffset, Point currentFrame, Point sheetSize, Vector2 speed)
+        int collisionOffset, Point currentFrame, Point sheetSize, Vector2 speed,
+        ISpriteAutomaticMovement movement)
     {
+        _movement = movement ?? throw new ArgumentNullException(nameof(movement));
         TextureImage = textureImage;
         Position = position;
         _frameSize = frameSize;
@@ -61,12 +64,12 @@ public class Sprite {
 
     public virtual void Update(GameTime gameTime, Rectangle clientBounds)
     {
-        _spriteSoloMovement.AutomaticMovement(this, clientBounds);
+        _movement.AutomaticMovement(this, clientBounds);
     }
 
     public virtual void Update()
     {
-        _spriteSoloMovement.AutomaticMovement(this);
+        _movement.AutomaticMovement(this);
     }
 
     public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch)
@@ -120,8 +123,4 @@ public class Sprite {
         get => Position.Y;
     }
 
-    public void SoloMovementDependency(ISpriteAutomaticMovement issm)
-    {
-        _spriteSoloMovement = issm;
-    }
 }
