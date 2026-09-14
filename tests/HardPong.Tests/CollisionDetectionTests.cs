@@ -57,13 +57,37 @@ public class CollisionDetectionTests
     }
 
     [Fact]
-    public void BallPaddle_WithAlignedCenters_ReturnsZeroAngleAndSlope()
+    public void BallPaddle_WithHorizontallyAlignedCenters_ReturnsZeroAngleAndSlope()
     {
         var contact = CollisionBallPaddle.Detect(new Rectangle(40, 0, 12, 12), new Rectangle(50, 0, 15, 12));
 
         Assert.True(contact.Hit);
         Assert.Equal(0f, contact.Angle);
         Assert.Equal(0f, contact.Slope);
+    }
+
+    [Theory]
+    [InlineData(124, 0f)]
+    [InlineData(114, 90f)]
+    [InlineData(134, 90f)]
+    public void BallPaddle_WithSameCenterX_ReturnsFiniteGeometry(int ballY, float expectedAngle)
+    {
+        var contact = CollisionBallPaddle.Detect(new Rectangle(101, ballY, 12, 12), new Rectangle(100, 100, 15, 60));
+
+        Assert.True(contact.Hit);
+        Assert.Equal(expectedAngle, contact.Angle);
+        Assert.True(float.IsFinite(contact.Slope));
+        if (expectedAngle == 0f)
+            Assert.Equal(0f, contact.Slope);
+    }
+
+    [Theory]
+    [InlineData(0f, 0d)]
+    [InlineData(10f, 90d)]
+    [InlineData(-10f, -90d)]
+    public void SignedAngle_WithSameX_ReturnsFiniteAngle(float deltaY, double expected)
+    {
+        Assert.Equal(expected, MathHelper.Angle(0f, 0f, 0f, deltaY));
     }
 
     // ---- CollisionBallWall ----
