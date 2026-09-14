@@ -54,9 +54,9 @@ public class GameplayScreen : GameScreen {
     private readonly ScaleChanger _scWinScale;
     private readonly ScaleChanger _scScoreScale;
     private readonly ColorChanger _ccWinnerColor;
-    private readonly PositionChanger2 _pcScoreCounter1;
-    private readonly PositionChanger2 _pcScoreCounter2;
-    private readonly PositionChanger2 _pcWinner;
+    private readonly PositionChanger _pcScoreCounter1;
+    private readonly PositionChanger _pcScoreCounter2;
+    private readonly PositionChanger _pcWinner;
 
     //Input
     private readonly GameInputReader _inputReader;
@@ -77,12 +77,12 @@ public class GameplayScreen : GameScreen {
         _scScoreScale  = new ScaleChanger(10, 1.0f, 1.2f);
         _ccWinnerColor = new ColorChanger(10, Color.White, Color.Yellow);
         _pcScoreCounter1 =
-            new PositionChanger2(new Point((gameWidth / 2) - 200, 40),
+            new PositionChanger(new Point((gameWidth / 2) - 200, 40),
                                  new Point((gameWidth / 2) - 205, 45));
         _pcScoreCounter2 =
-            new PositionChanger2(new Point(gameWidth / 2 + 120, 40),
+            new PositionChanger(new Point(gameWidth / 2 + 120, 40),
                                  new Point(gameWidth / 2 + 115, 45));
-        _pcWinner = new PositionChanger2(new Point(210, 150), new Point(220, 150));
+        _pcWinner = new PositionChanger(new Point(210, 150), new Point(220, 150));
     }
 
     protected override void OnEnter()
@@ -288,7 +288,7 @@ public class GameplayScreen : GameScreen {
             spriteBatch.DrawString(_greatScore, Pause, new Vector2(200, 200), Color.Yellow);
     }
 
-    void DrawScoreCounters(bool isWinner, string playerScore, PositionChanger2 pos, Color winner_color,
+    void DrawScoreCounters(bool isWinner, string playerScore, PositionChanger pos, Color winner_color,
                            float score_scale, float max_scale) {
         if (isWinner) {
             _spriteBatch.DrawString(_greatScore,playerScore,pos.VectorSwitch(IsNear(score_scale, max_scale)),
