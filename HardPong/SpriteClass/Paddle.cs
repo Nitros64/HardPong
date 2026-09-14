@@ -1,41 +1,39 @@
 ﻿using System;
 using HardPong.Interfaces;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace HardPong.SpriteClass;
 
-internal class Paddle : Sprite
+// Estado de una pala: posicion, tamano y desplazamiento vertical.
+// No conoce texturas ni teclado; se mueve segun su IPaddleController.
+internal class Paddle
 {
     public const int BrickWidth = 15;
     public const int BrickHeight = 60;
-    public const float BrickSpeedX = 5;
     public const float BrickSpeedY = 5;
 
-    // Movement stuff
     private readonly IPaddleController _controller;
+    private Vector2 _position;
+    private Vector2 _oldPosition;
 
-    public byte PlayerNumber { get; set; }
-
-    public Paddle(Texture2D textureImage, Vector2 position,
-        Point frameSize, int collisionOffset, Point currentFrame, Point sheetSize,
-        Vector2 speed, IPaddleController controller)
-        : base(textureImage, position, frameSize, collisionOffset, currentFrame,
-        sheetSize, speed)
+    public Paddle(Vector2 spawn, IPaddleController controller)
     {
         _controller = controller ?? throw new ArgumentNullException(nameof(controller));
+        _position = spawn;
+        _oldPosition = spawn;
     }
 
-    public override void Update()
+    public Vector2 Position => _position;
+    public Rectangle CollisionRect => new((int)_position.X, (int)_position.Y, BrickWidth, BrickHeight);
+
+    public void Update()
     {
         float axis = _controller.ReadMovementAxis();
-        OldPosition = SpritePosition; // las colisiones utilizan OldPosition
-        SpritePosition += new Vector2(0f, axis) * Speed;
+        _oldPosition = _position; // las colisiones utilizan OldPosition
+        _position.Y += axis * BrickSpeedY;
     }
 
-    public void GetBackToOldPosition() {
-        Position = OldPosition;
-    }
+    public void SetPosition(float x, float y) => _position = new Vector2(x, y);
 
-    public Vector2 OldPosition { get; set; }
+    public void GetBackToOldPosition() => _position = _oldPosition;
 }

@@ -29,8 +29,9 @@ public class SpriteManager : DrawableGameComponent {
     //Audio de la partida
     private PongAudio _pongAudio;
 
-    //Render de la pelota
+    //Render de la pelota y de las palas
     private SpriteRenderer _ballRenderer;
+    private SpriteRenderer _paddleRenderer;
 
     //Fuentes para las letras
     private SpriteFont _fontScore;
@@ -124,28 +125,12 @@ public class SpriteManager : DrawableGameComponent {
 
     private void LoadContentSprites() {
         //Load the player sprite y asignando valores
-        _player = new Paddle(Game.Content.Load<Texture2D>(@"Images/rect"),
-                 new Vector2(10, Game.Window.ClientBounds.Height / 2 - 30), //start position
-                 new Point(Paddle.BrickWidth, Paddle.BrickHeight), //brick width and height
-                 0, //Colisionador
-                 new Point(0, 0),
-                 new Point(0, 0),
-                 new Vector2(Paddle.BrickSpeedX, Paddle.BrickSpeedY),//speed
+        _player = new Paddle(new Vector2(10, Game.Window.ClientBounds.Height / 2 - 30),
                  new PaddleInputMovement(new KeyboardReader(), Keys.W, Keys.S));
 
-        _player.PlayerNumber = 1;
-
         //Load the player2 sprite y asignando valores
-        _player2 = new Paddle(Game.Content.Load<Texture2D>(@"Images/rect"),
-                  new Vector2(Game.Window.ClientBounds.Width - 25, Game.Window.ClientBounds.Height / 2 - 30), //start position
-                  new Point(Paddle.BrickWidth, Paddle.BrickHeight), //brick width and height
-                  0, //Colisionador
-                  new Point(0, 0),
-                  new Point(0, 0),
-                  new Vector2(Paddle.BrickSpeedX, Paddle.BrickSpeedY), //speed
+        _player2 = new Paddle(new Vector2(Game.Window.ClientBounds.Width - 25, Game.Window.ClientBounds.Height / 2 - 30),
                   new PaddleInputMovement(new KeyboardReader(), Keys.Up, Keys.Down));
-
-        _player2.PlayerNumber = 2;
 
         _ball = new Ball(Game.Window.ClientBounds);
 
@@ -155,7 +140,8 @@ public class SpriteManager : DrawableGameComponent {
             new BallSound(Game.Content.Load<SoundEffect>(@"Audio/wallSound")),
             new BallSound(Game.Content.Load<SoundEffect>(@"Audio/cheer")));
 
-        //El render usa la textura; la fisica no
+        //El render usa las texturas; la fisica no
+        _paddleRenderer = new SpriteRenderer(Game.Content.Load<Texture2D>(@"Images/rect"), Color.White);
         _ballRenderer = new SpriteRenderer(Game.Content.Load<Texture2D>(@"Images/circulo"), Color.Red);
 
         //La pantalla construye; la sesion coordina
@@ -211,8 +197,7 @@ public class SpriteManager : DrawableGameComponent {
                 _inputReader.ResetGracePeriod();
                 break;
             case GameAction.PrepareNextRound:
-                _match.Execute(action);
-                if (_match.IsMatchOver)
+                if (_match.PrepareNextRound() == MatchEndResult.MatchWon)
                 {
                     MediaPlayer.Stop();
                     MediaPlayer.Play(_music);
@@ -241,9 +226,9 @@ public class SpriteManager : DrawableGameComponent {
     public override void Draw(GameTime gameTime)
     {
         _spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
-        // Draw the player
-        _match.Player1.Draw(gameTime,_spriteBatch);
-        _match.Player2.Draw(gameTime,_spriteBatch);
+        // Draw the players
+        _paddleRenderer.Draw(_match.Player1.Position, _spriteBatch);
+        _paddleRenderer.Draw(_match.Player2.Position, _spriteBatch);
         // Draw all sprites
         if (GameStates.ExitMenu != _match.State){
             _ballRenderer.Draw(_match.Ball.Position, _spriteBatch);

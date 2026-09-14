@@ -83,9 +83,10 @@ internal class CollisionResponse
 
     public void ResolvePaddleBoundary(Paddle paddle, Rectangle bounds)
     {
-        if (paddle.PositionY <= 0)
-            paddle.PositionY = 0;
-        if (paddle.PositionY + paddle.SpriteFrameSize.Y >= bounds.Height)
-            paddle.PositionY = bounds.Height - paddle.SpriteFrameSize.Y;
+        Rectangle rect = paddle.CollisionRect;
+        if (rect.Y <= 0)
+            paddle.SetPosition(rect.X, 0);
+        if (rect.Y + rect.Height >= bounds.Height)
+            paddle.SetPosition(rect.X, bounds.Height - Paddle.BrickHeight);
     }
 }
