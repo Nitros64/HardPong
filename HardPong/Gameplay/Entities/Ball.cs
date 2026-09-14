@@ -52,46 +52,13 @@ internal class Ball
 
     public void InvertDirectionHorizontal() => _speed.X *= -1;
 
-    // Normaliza la direccion entrante: magnitud horizontal minima, techo
-    // vertical y respeto del signo con el que se viaja.
-    public void SetDirection(Vector2 value)
-    {
-        if (_speed.X < 0)
-        {
-            if (value.X < BallSpeedX)
-                _speed.X = -BallSpeedX;
-            else
-                _speed.X = -value.X;
-        }
-        else if (value.X < BallSpeedX)
-            _speed.X = BallSpeedX;
-        else
-            _speed.X = value.X;
+    public void SetDirection(Vector2 value) => ApplySpeed(value.X, value.Y);
 
-        if (value.Y > 7)
-            value.Y = 7;
+    public void SetSpeed(float x, float y) => ApplySpeed(x, y);
 
-        if (value.Y == 0 || value.Y < 1)
-            value.Y = MinVerticalSpeed;
-
-        if (_speed.Y < 0)
-        {
-            switch (value.Y)
-            {
-                case < 0:
-                    _speed.Y = value.Y;
-                    break;
-                case > 0:
-                    value.Y *= -1;
-                    _speed.Y = value.Y;
-                    break;
-            }
-        }
-        else
-            _speed.Y = value.Y;
-    }
-
-    public void SetSpeed(float x, float y)
+    // Aplica los limites de velocidad conservando los signos del movimiento.
+    // Los valores verticales menores que 1 pasan a 3; los de 1 a 7 se mantienen.
+    private void ApplySpeed(float x, float y)
     {
         if (_speed.X < 0)
         {

@@ -118,4 +118,35 @@ public class BallTests
         Assert.Equal(-Ball.BallSpeedX, ball.Direction.X);
         Assert.Equal(Ball.BallSpeedY, ball.Direction.Y);
     }
+
+    [Theory]
+    [InlineData(-8f, -4f, 5f, 3f)]
+    [InlineData(0f, 0f, 5f, 3f)]
+    [InlineData(4.99f, 0.99f, 5f, 3f)]
+    [InlineData(5f, 1f, 5f, 1f)]
+    [InlineData(5.01f, 2f, 5.01f, 2f)]
+    [InlineData(8f, 7f, 8f, 7f)]
+    [InlineData(8f, 7.01f, 8f, 7f)]
+    public void SpeedSetters_ApplyExistingLimitsAndPreserveEveryTravelDirection(
+        float x, float y, float expectedX, float expectedY)
+    {
+        foreach (bool useDirectionSetter in new[] { false, true })
+        foreach (int signX in new[] { -1, 1 })
+        foreach (int signY in new[] { -1, 1 })
+        {
+            var ball = NewBall();
+            if (signX < 0) ball.InvertDirectionHorizontal();
+            if (signY < 0) ball.InvertDirectionVertical();
+
+            if (useDirectionSetter)
+                ball.SetDirection(new Vector2(x, y));
+            else
+                ball.SetSpeed(x, y);
+
+            var expectedVelocity = new Vector2(signX * expectedX, signY * expectedY);
+            Assert.Equal(expectedVelocity, ball.Direction);
+            ball.Update();
+            Assert.Equal(Spawn + expectedVelocity, ball.Position);
+        }
+    }
 }
