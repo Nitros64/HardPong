@@ -60,6 +60,10 @@ The flow is one-directional: input is read into `GameAction`s, `MatchSession` ex
 and simulates frames, and the screens render the entities' state. Physics never plays sounds
 and never draws.
 
+`MatchSession.SimulateFrame` returns `CollisionEvents` for paddle hits, wall hits and points.
+`GameplayScreen` passes these facts to `PongAudio` for playback and stops the score sound
+when a round or match is reset. Session tests require no audio objects or audio mocks.
+
 `GameScreen` separates resource loading from activation: `Initialize` loads content once,
 `Enter` prepares each visit, and `Leave` stops playback and rearms input without releasing resources.
 Entering gameplay starts a fresh match. `PongGame` disposes both screens at shutdown,

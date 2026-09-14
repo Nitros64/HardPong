@@ -7,13 +7,6 @@ namespace HardPong.Tests;
 // Simulacion de partida completa sin ventana, texturas ni sonido.
 public class MatchSessionTests
 {
-    private sealed class SilentSound : ISoundEffect
-    {
-        public void PlaySoundEffect() { }
-        public void StopSoundEffect() { }
-        public void Dispose() { }
-    }
-
     private sealed class FixedController(float axis) : IPaddleController
     {
         public float ReadMovementAxis() => axis;
@@ -26,8 +19,77 @@ public class MatchSessionTests
         var ball = new Ball(Court);
         var player1 = new Paddle(new Vector2(10, Court.Height / 2 - Paddle.BrickHeight / 2), new FixedController(0f));
         var player2 = new Paddle(new Vector2(Court.Width - 25, Court.Height / 2 - Paddle.BrickHeight / 2), new FixedController(0f));
-        var audio = new PongAudio(new SilentSound(), new SilentSound(), new SilentSound());
-        return new MatchSession(ball, player1, player2, audio, Court);
+        return new MatchSession(ball, player1, player2, Court);
+    }
+
+    [Fact]
+    public void SimulateFrame_WithoutCollision_ReturnsNoEvents()
+    {
+        var match = NewMatch();
+        match.Execute(GameAction.StartMatch);
+
+        Assert.Equal(CollisionEvents.None, match.SimulateFrame(Court));
+        Assert.Equal(GameStates.Playing, match.State);
+    }
+
+    [Fact]
+    public void SimulateFrame_WallHit_ReportsImpactWithoutScoring()
+    {
+        var match = NewMatch();
+        match.Execute(GameAction.StartMatch);
+        match.Ball.SetPosition(400, Court.Height - Ball.BallHeight);
+
+        Assert.Equal(CollisionEvents.WallHit, match.SimulateFrame(Court));
+        Assert.True(match.Ball.Direction.Y < 0);
+        Assert.Equal(0, match.Score.Player1);
+        Assert.Equal(0, match.Score.Player2);
+        Assert.Equal(GameStates.Playing, match.State);
+        Assert.Equal(CollisionEvents.None, match.SimulateFrame(Court));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void SimulateFrame_PaddleHit_ReportsImpactAndReversesHorizontalTravel(bool left)
+    {
+        var match = NewMatch();
+        match.Execute(GameAction.StartMatch);
+        if (left)
+            match.Ball.InvertDirectionHorizontal();
+        float x = left ? match.Player1.Position.X + Paddle.BrickWidth
+            : match.Player2.Position.X - Ball.BallWidth;
+        float y = match.Player1.Position.Y + Paddle.BrickHeight / 2 - Ball.BallHeight / 2 - Ball.BallSpeedY;
+        match.Ball.SetPosition(x, y);
+
+        Assert.Equal(CollisionEvents.PaddleHit, match.SimulateFrame(Court));
+        Assert.Equal(left, match.Ball.Direction.X > 0);
+        Assert.Equal(0, match.Score.Player1);
+        Assert.Equal(0, match.Score.Player2);
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public void SimulateFrame_Point_ReportsSimultaneousWallHitAndDoesNotRepeat(bool left, bool corner)
+    {
+        var match = NewMatch();
+        match.Execute(GameAction.StartMatch);
+        if (left)
+            match.Ball.InvertDirectionHorizontal();
+        match.Ball.SetPosition(left ? 0 : Court.Width - Ball.BallWidth,
+            corner ? Court.Height - Ball.BallHeight : 100);
+        var expected = CollisionEvents.PointScored;
+        if (corner)
+            expected |= CollisionEvents.WallHit;
+
+        Assert.Equal(expected, match.SimulateFrame(Court));
+        Assert.Equal(left ? PlayerId.Player2 : PlayerId.Player1, match.Score.LastPointWinner);
+        Assert.Equal(left ? 0 : 1, match.Score.Player1);
+        Assert.Equal(left ? 1 : 0, match.Score.Player2);
+        Assert.Equal(GameStates.Stop, match.State);
+        Assert.Equal(CollisionEvents.None, match.SimulateFrame(Court));
     }
 
     [Fact]

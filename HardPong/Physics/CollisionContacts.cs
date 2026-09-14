@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Xna.Framework;
 
 namespace HardPong;
@@ -17,15 +17,15 @@ internal readonly record struct BallBoundaryContact(
     bool OutTop,
     bool OutBottom);
 
-// Resultado de resolver un contacto con los limites: audio y, si lo hubo, quien anota.
-internal readonly record struct BallBoundaryOutcome(CollisionSound Sound, PlayerId Scorer);
+// Hechos del contacto con los limites y, si lo hubo, quien anota.
+internal readonly record struct BallBoundaryOutcome(CollisionEvents Events, PlayerId Scorer);
 
-// Eventos que la respuesta comunica; la coordinacion de la partida reproduce el audio.
+// Hechos de la simulacion, independientes de su presentacion.
 [Flags]
-internal enum CollisionSound
+internal enum CollisionEvents
 {
     None = 0,
-    Paddle = 1 << 0,
-    Score = 1 << 1,
-    Wall = 1 << 2
+    PaddleHit = 1 << 0,
+    PointScored = 1 << 1,
+    WallHit = 1 << 2
 }

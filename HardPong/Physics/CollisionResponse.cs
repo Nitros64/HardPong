@@ -3,11 +3,11 @@ using static HardPong.Ball;
 
 namespace HardPong;
 
-// Aplica las respuestas fisicas y sonoras a los contactos detectados.
+// Aplica las respuestas fisicas a los contactos detectados.
 // No detecta nada por si mismo: solo responde a hechos.
 internal class CollisionResponse
 {
-    public CollisionSound ResolveBallPaddle(Ball ball, Paddle paddle, in BallPaddleContact contact)
+    public CollisionEvents ResolveBallPaddle(Ball ball, Paddle paddle, in BallPaddleContact contact)
     {
         Rectangle rectBall = contact.BallRect;
         Rectangle rectPaddle = contact.PaddleRect;
@@ -31,7 +31,7 @@ internal class CollisionResponse
         if (BallBorderCollision(rectBall, rectPaddle))
             paddle.GetBackToOldPosition();
 
-        return CollisionSound.Paddle;
+        return CollisionEvents.PaddleHit;
     }
 
     private static bool BallBorderCollision(Rectangle ball, Rectangle paddle)
@@ -47,7 +47,7 @@ internal class CollisionResponse
     public BallBoundaryOutcome ResolveBallBoundary(Ball ball, in BallBoundaryContact contact, Rectangle bounds)
     {
         Rectangle rectball = ball.CollisionRect;
-        var sound = CollisionSound.None;
+        var events = CollisionEvents.None;
         var scorer = PlayerId.None;
 
         if (contact.OutRight)
@@ -55,29 +55,29 @@ internal class CollisionResponse
             ball.Position = new Vector2(bounds.Width - rectball.Width, ball.Position.Y);
             ball.InvertDirectionHorizontal();//Invertir direccion Horizontal
             scorer = PlayerId.Player1;
-            sound |= CollisionSound.Score;
+            events |= CollisionEvents.PointScored;
         }
         else if (contact.OutLeft)
         {//Pierde el jugador derecho
             ball.Position = new Vector2(0, ball.Position.Y);
             ball.InvertDirectionHorizontal();
             scorer = PlayerId.Player2;
-            sound |= CollisionSound.Score;
+            events |= CollisionEvents.PointScored;
         }
         if (contact.OutBottom)
         {
             ball.Position = new Vector2(ball.Position.X, bounds.Height - Ball.BallHeight);
             ball.InvertDirectionVertical();
-            sound |= CollisionSound.Wall;
+            events |= CollisionEvents.WallHit;
         }
         else if (contact.OutTop)
         {
             ball.Position = new Vector2(ball.Position.X, 0);
             ball.InvertDirectionVertical();
-            sound |= CollisionSound.Wall;
+            events |= CollisionEvents.WallHit;
         }
 
-        return new BallBoundaryOutcome(sound, scorer);
+        return new BallBoundaryOutcome(events, scorer);
     }
 
     public void ResolvePaddleBoundary(Paddle paddle, Rectangle bounds)

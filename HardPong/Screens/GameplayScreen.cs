@@ -104,6 +104,7 @@ public class GameplayScreen : GameScreen {
     private void RestartMatch()
     {
         _match.ResetMatch();
+        _pongAudio.StopScore();
         MediaPlayer.Stop();
         MediaPlayer.IsRepeating = true;
         MediaPlayer.Volume = 0.3f;
@@ -162,7 +163,7 @@ public class GameplayScreen : GameScreen {
         _ballRenderer = new SpriteRenderer(Game.Content.Load<Texture2D>(@"Images/circulo"), Color.Red);
 
         //La pantalla construye; la sesion coordina
-        _match = new MatchSession(_ball, _player, _player2, _pongAudio, Game.Window.ClientBounds);
+        _match = new MatchSession(_ball, _player, _player2, Game.Window.ClientBounds);
     }
 
     private void LoadContentFont()
@@ -202,7 +203,7 @@ public class GameplayScreen : GameScreen {
             _ccWinnerColor.Advance();
         }
         if (_match.State == GameStates.Playing)// If the user hasn't paused, Update normally
-            _match.SimulateFrame(Game.Window.ClientBounds);
+            _pongAudio.PlayEvents(_match.SimulateFrame(Game.Window.ClientBounds));
     }
 
     private void Execute(GameAction action)
@@ -214,7 +215,10 @@ public class GameplayScreen : GameScreen {
                 _inputReader.ResetGracePeriod();
                 break;
             case GameAction.PrepareNextRound:
-                if (_match.PrepareNextRound() == MatchEndResult.MatchWon)
+                var result = _match.PrepareNextRound();
+                if (result != MatchEndResult.Ignored)
+                    _pongAudio.StopScore();
+                if (result == MatchEndResult.MatchWon)
                 {
                     MediaPlayer.Stop();
                     MediaPlayer.Play(_music);

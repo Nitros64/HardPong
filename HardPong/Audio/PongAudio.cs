@@ -22,6 +22,17 @@ internal class PongAudio : IDisposable
 
     public void PlayScore() => _score.PlaySoundEffect();
 
+    public void PlayEvents(CollisionEvents events)
+    {
+        // Orden de presentacion conservado: pala, punto, muro.
+        if (events.HasFlag(CollisionEvents.PaddleHit))
+            PlayPaddle();
+        if (events.HasFlag(CollisionEvents.PointScored))
+            PlayScore();
+        if (events.HasFlag(CollisionEvents.WallHit))
+            PlayWall();
+    }
+
     public void StopScore() => _score.StopSoundEffect();
 
     public void StopAll()

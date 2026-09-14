@@ -17,12 +17,12 @@ public class MatchSessionStateTests
     {
         var scenario = new Scenario(state);
         // Una simulacion accidental moveria las palas y provocaria un punto
-        // y un rebote en el muro, ademas de reproducir sonidos.
+        // y un rebote en el muro, ademas de emitir eventos.
         scenario.Match.Ball.SetPosition(Court.Width - Ball.BallWidth, Court.Height - Ball.BallHeight);
         var before = scenario.Capture();
 
         for (int frame = 0; frame < 3; frame++)
-            scenario.Match.SimulateFrame(Court);
+            Assert.Equal(CollisionEvents.None, scenario.Match.SimulateFrame(Court));
 
         Assert.Equal(before, scenario.Capture());
     }
@@ -64,18 +64,16 @@ public class MatchSessionStateTests
         Assert.Equal(GameStates.Ready, scenario.Match.State);
         Assert.Equal(1, scenario.Match.Score.Player1);
         Assert.Equal(PlayerId.None, scenario.Match.Score.LastPointWinner);
-        Assert.Equal("score:stop", scenario.AudioEvents[^1]);
     }
 
     [Fact]
     public void PrepareNextRound_Twice_AppliesEffectsOnlyOnce()
     {
         var scenario = new Scenario(GameStates.Stop);
-        int soundCallsBefore = scenario.AudioEvents.Count;
 
         Assert.Equal(MatchEndResult.NextRound, scenario.Match.PrepareNextRound());
-        Assert.Equal(soundCallsBefore + 1, scenario.AudioEvents.Count);
-        Assert.Equal("score:stop", scenario.AudioEvents[^1]);
+        Assert.Equal(GameStates.Ready, scenario.Match.State);
+        Assert.Equal(PlayerId.None, scenario.Match.Score.LastPointWinner);
         var afterFirstCall = scenario.Capture();
 
         Assert.Equal(MatchEndResult.Ignored, scenario.Match.PrepareNextRound());
@@ -87,18 +85,13 @@ public class MatchSessionStateTests
         private readonly CountingController _controller1 = new(1f);
         private readonly CountingController _controller2 = new(-1f);
 
-        public List<string> AudioEvents { get; } = [];
         public MatchSession Match { get; }
 
         public Scenario(GameStates state)
         {
-            var audio = new PongAudio(
-                new RecordingSound("paddle", AudioEvents),
-                new RecordingSound("wall", AudioEvents),
-                new RecordingSound("score", AudioEvents));
             Match = new MatchSession(new Ball(Court),
                 new Paddle(Vector2.Zero, _controller1),
-                new Paddle(Vector2.Zero, _controller2), audio, Court);
+                new Paddle(Vector2.Zero, _controller2), Court);
 
             if (state != GameStates.Ready)
             {
@@ -119,13 +112,12 @@ public class MatchSessionStateTests
         public Snapshot Capture() => new(Match.State, Match.Ball.Position, Match.Ball.Direction,
             Match.Player1.Position, Match.Player2.Position, Match.Score.Player1, Match.Score.Player2,
             Match.Score.LastPointWinner, Match.Score.MatchWinner,
-            _controller1.ReadCount, _controller2.ReadCount, AudioEvents.Count);
+            _controller1.ReadCount, _controller2.ReadCount);
     }
 
     private readonly record struct Snapshot(GameStates State, Vector2 BallPosition, Vector2 BallVelocity,
         Vector2 Player1Position, Vector2 Player2Position, int Score1, int Score2,
-        PlayerId LastPointWinner, PlayerId MatchWinner, int Controller1Reads, int Controller2Reads,
-        int AudioCalls);
+        PlayerId LastPointWinner, PlayerId MatchWinner, int Controller1Reads, int Controller2Reads);
 
     private sealed class CountingController(float axis) : IPaddleController
     {
@@ -138,10 +130,4 @@ public class MatchSessionStateTests
         }
     }
 
-    private sealed class RecordingSound(string name, List<string> events) : ISoundEffect
-    {
-        public void PlaySoundEffect() => events.Add(name + ":play");
-        public void StopSoundEffect() => events.Add(name + ":stop");
-        public void Dispose() => events.Add(name + ":dispose");
-    }
 }

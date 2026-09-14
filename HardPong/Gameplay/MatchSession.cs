@@ -11,7 +11,7 @@ internal enum MatchEndResult
     Ignored
 }
 
-// Coordina la partida: estado, marcador, entidades, fisica y audio.
+// Coordina la partida: estado, marcador, entidades y fisica.
 // No dibuja ni lee entrada; expone lo necesario para renderizar y leer acciones.
 internal class MatchSession
 {
@@ -21,16 +21,14 @@ internal class MatchSession
 
     private readonly Ball _ball;
     private readonly Paddle _player1, _player2;
-    private readonly PongAudio _audio;
 
     private readonly Vector2 _player1Spawn, _player2Spawn, _ballSpawn;
 
-    public MatchSession(Ball ball, Paddle player1, Paddle player2, PongAudio audio, Rectangle court)
+    public MatchSession(Ball ball, Paddle player1, Paddle player2, Rectangle court)
     {
         _ball = ball;
         _player1 = player1;
         _player2 = player2;
-        _audio = audio;
 
         _player1Spawn = new Vector2(10, court.Height / 2 - Paddle.BrickHeight / 2);
         _player2Spawn = new Vector2(court.Width - 25, court.Height / 2 - Paddle.BrickHeight / 2);
@@ -89,10 +87,10 @@ internal class MatchSession
     }
 
     // Simula un frame de juego; SOLO tiene efecto en Playing.
-    public void SimulateFrame(Rectangle court)
+    public CollisionEvents SimulateFrame(Rectangle court)
     {
         if (_gameState.GetGameState() != GameStates.Playing)
-            return;
+            return CollisionEvents.None;
 
         _ball.Update();
         _player1.Update();
@@ -101,23 +99,23 @@ internal class MatchSession
         _collisionManager.ResolvePaddleBoundary(_player1, court);
         _collisionManager.ResolvePaddleBoundary(_player2, court);
 
-        CollisionSound sound;
+        CollisionEvents events;
         if (_ball.Direction.X > 0)
-            sound = _collisionManager.ResolveBallPaddle(_ball, _player2);// Right Paddle (Player 2)
+            events = _collisionManager.ResolveBallPaddle(_ball, _player2);// Right Paddle (Player 2)
         else if (_ball.Direction.X < 0)
-            sound = _collisionManager.ResolveBallPaddle(_ball, _player1);// Left Paddle (Player 1)
+            events = _collisionManager.ResolveBallPaddle(_ball, _player1);// Left Paddle (Player 1)
         else
-            sound = CollisionSound.None;
+            events = CollisionEvents.None;
 
         BallBoundaryOutcome boundary = _collisionManager.ResolveBallBoundary(_ball, court);
-        sound |= boundary.Sound;
+        events |= boundary.Events;
         if (boundary.Scorer != PlayerId.None)
             _score.AwardPoint(boundary.Scorer);
 
         if (_score.LastPointWinner != PlayerId.None)
             _gameState.EndRound();
 
-        PlaySounds(sound);
+        return events;
     }
 
     public void ResetMatch()
@@ -125,14 +123,12 @@ internal class MatchSession
         _gameState.Ready();
         _score.Reset();
         ResetPositions();
-        _audio.StopScore();
     }
 
     private void StartNextRound()
     {
         _score.StartNextRound();
         ResetPositions();
-        _audio.StopScore();
     }
 
     private void ResetPositions()
@@ -143,14 +139,4 @@ internal class MatchSession
         _ball.SetSpeed(Ball.BallSpeedX, Ball.BallSpeedY);
     }
 
-    private void PlaySounds(CollisionSound sound)
-    {
-        // Orden historico de audio: pala, puntuacion, muro
-        if (sound.HasFlag(CollisionSound.Paddle))
-            _audio.PlayPaddle();
-        if (sound.HasFlag(CollisionSound.Score))
-            _audio.PlayScore();
-        if (sound.HasFlag(CollisionSound.Wall))
-            _audio.PlayWall();
-    }
 }
