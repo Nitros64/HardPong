@@ -1,6 +1,7 @@
 # MonoGame - Ignorar archivos generados
 bin/
 obj/
+artifacts/
 *.suo
 *.user
 *.log

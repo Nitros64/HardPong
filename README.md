@@ -52,7 +52,10 @@ HardPong/
 ├── Input/       # keyboard reading translated into GameAction
 ├── Physics/     # pure collision detection and the collision responses
 ├── Rendering/   # SpriteRenderer
-├── UI/          # menus, selection arrow and visual effects
+├── UI/
+│   ├── Menus/   # menu presentation, selection, results and selection arrow
+│   ├── Effects/ # color, scale and position effects
+│   └── Sprites/ # sprites and movement strategies
 └── Audio/       # match audio owner
 ```
 
