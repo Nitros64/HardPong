@@ -4,20 +4,16 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
-using HardPong.Interfaces;
 using HardPong.Dependencies;
 using HardPong.SpriteClass;
 using static HardPong.GameEnum;
 
 namespace HardPong;
 
-public class SpriteManager : DrawableGameComponent {     
-           
-    private int _player1PositionX, _player1PositionY, _player2PositionX, _player2PositionY;        
-    private int _ballPositionX, _ballPositionY;
- 
-    private readonly GameStateController _gameState;
-    
+// Pantalla de juego: construye las entidades, lee acciones y dibuja.
+// La logica de la partida vive en MatchSession.
+public class SpriteManager : DrawableGameComponent {
+
     //Menu Simple
 
     //SpriteBatch for drawing
@@ -27,6 +23,9 @@ public class SpriteManager : DrawableGameComponent {
     private Paddle _player, _player2;
     private Ball _ball;
 
+    //Partida
+    private MatchSession _match;
+
     //Audio de la partida
     private PongAudio _pongAudio;
 
@@ -35,15 +34,12 @@ public class SpriteManager : DrawableGameComponent {
     private SpriteFont _greatScore;
     private const string ScoreString = "SCORE:";
 
-    //Puntuacion y reglas de victoria
-    private readonly MatchScore _matchScore = new();
-
     //Exit Menu
     private const string Continue = "CONTINUE";
     private const string MainMenu = "MAIN MENU";
     private const string Exit     = "EXIT GAME";
     private const string Pause    = "PAUSE";
-        
+
     //Musica
     private Song _music;
 
@@ -60,17 +56,12 @@ public class SpriteManager : DrawableGameComponent {
     private readonly PositionChanger2 _pcScoreCounter2;
     private readonly PositionChanger2 _pcWinner;
 
-    //Collision Detector
-    private readonly CollisionDetector _collisionManager;
-
-    //Interfaces
+    //Input
     private readonly GameInputReader _inputReader;
     private readonly Game1 _gameEngine;
 
     public SpriteManager(Game game) : base(game)
     {
-        _gameState = new GameStateController();
-       
         var gameEngine = (Game1) game;
         _gameEngine = gameEngine;
         _inputReader = new GameInputReader();
@@ -78,60 +69,34 @@ public class SpriteManager : DrawableGameComponent {
         int gameWidth = Game.Window.ClientBounds.Width;
         EscapeMenu = new MenuSimple(new Vector2(gameWidth / 2 - 90, 230),
                     Continue, MainMenu, Exit);
-        
+
         EscapeMenu.InputManager.AddTriggerKeys(Keys.Escape);
 
         _scWinScale    = new ScaleChanger(10, 0.6f, 0.57f);
         _scScoreScale  = new ScaleChanger(10, 1.0f, 1.2f);
         _ccWinnerColor = new ColorChanger(10, Color.White, Color.Yellow);
-        _pcScoreCounter1 = 
+        _pcScoreCounter1 =
             new PositionChanger2(new Point((gameWidth / 2) - 200, 40),
                                  new Point((gameWidth / 2) - 205, 45));
         _pcScoreCounter2 =
             new PositionChanger2(new Point(gameWidth / 2 + 120, 40),
                                  new Point(gameWidth / 2 + 115, 45));
         _pcWinner = new PositionChanger2(new Point(210, 150), new Point(220, 150));
-        _collisionManager = new CollisionDetector();
-
-        _inputReader = new GameInputReader();
     }
 
     public override void Initialize()
     {
         base.Initialize();
-        Begin();
+        RestartMatch();
     }
 
-    public void Begin()
+    // Reinicia la partida y su presentacion (musica y menu de pausa)
+    private void RestartMatch()
     {
-        reset_primitives();                        
-        ResetPosition();
-        reset_soundEffects();
+        _match.ResetMatch();
         MediaPlayer.Stop();
         MediaPlayer.Play(_music);
         EscapeMenu.Initialize();
-    }
-
-    private void reset_primitives() {
-        _gameState.Ready();
-        _matchScore.Reset();
-    }
-
-    public void ResetPosition()//ball and players
-    { 
-        _player.SetPosition(_player1PositionX, _player1PositionY);
-        _player2.SetPosition(_player2PositionX, _player2PositionY);
-        _ball.SetPosition(_ballPositionX, _ballPositionY);
-        _ball.SetSpeed(Ball.BallSpeedX, Ball.BallSpeedY);
-    }
-
-    public static void End()
-    {
-        MediaPlayer.Stop();
-    }    
-
-    public void reset_soundEffects() {
-        _pongAudio.StopScore();
     }
 
     protected override void LoadContent()
@@ -139,13 +104,14 @@ public class SpriteManager : DrawableGameComponent {
         _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
         LoadContentSprites(); //Load Sprites
         LoadContentFont();  //Load Font
-        LoadContentMusic(); //Load Musica       
+        LoadContentMusic(); //Load Musica
         BuildCentralPaddles();//Build Central Lines
 
         EscapeMenu.LoadContent(Game.Content.Load<SpriteFont>(@"Font/NESfont2"),
                                Game.Content.Load<Texture2D>(@"Images/triangulo"),
                                Game.Content.Load<SoundEffect>(@"Audio/laser-shoot"));
     }
+
     protected override void UnloadContent()
     {
         // Solo recursos creados a mano; lo cargado via ContentManager lo libera el framework.
@@ -154,18 +120,9 @@ public class SpriteManager : DrawableGameComponent {
     }
 
     private void LoadContentSprites() {
-        _player1PositionX = 10;
-        _player1PositionY = Game.Window.ClientBounds.Height / 2 - 30;
-
-        _player2PositionX = Game.Window.ClientBounds.Width - 25;
-        _player2PositionY = Game.Window.ClientBounds.Height / 2 - 30;
-
-        _ballPositionX = Game.Window.ClientBounds.Width / 2 - Ball.BallWidth / 2;
-        _ballPositionY = Game.Window.ClientBounds.Height / 2 - Ball.BallHeight / 2;        
-
         //Load the player sprite y asignando valores
         _player = new Paddle(Game.Content.Load<Texture2D>(@"Images/rect"),
-                 new Vector2(_player1PositionX, _player1PositionY), //start position
+                 new Vector2(10, Game.Window.ClientBounds.Height / 2 - 30), //start position
                  new Point(Paddle.BrickWidth, Paddle.BrickHeight), //brick width and height
                  0, //Colisionador
                  new Point(0, 0),
@@ -174,10 +131,10 @@ public class SpriteManager : DrawableGameComponent {
                  new PaddleInputMovement(new KeyboardReader(), Keys.W, Keys.S));
 
         _player.PlayerNumber = 1;
-        
+
         //Load the player2 sprite y asignando valores
         _player2 = new Paddle(Game.Content.Load<Texture2D>(@"Images/rect"),
-                  new Vector2(_player2PositionX, _player2PositionY), //start position
+                  new Vector2(Game.Window.ClientBounds.Width - 25, Game.Window.ClientBounds.Height / 2 - 30), //start position
                   new Point(Paddle.BrickWidth, Paddle.BrickHeight), //brick width and height
                   0, //Colisionador
                   new Point(0, 0),
@@ -189,22 +146,27 @@ public class SpriteManager : DrawableGameComponent {
 
         _ball = new Ball(
                 Game.Content.Load<Texture2D>(@"Images/circulo"),
-                new Vector2(_ballPositionX, _ballPositionY), //Position X,Y
+                new Vector2(Game.Window.ClientBounds.Width / 2 - Ball.BallWidth / 2,
+                            Game.Window.ClientBounds.Height / 2 - Ball.BallHeight / 2), //Position X,Y
                 new Point(Ball.BallWidth, Ball.BallHeight), //ball width and height
                 0, //Colisionador
                 new Point(0, 0),
                 new Point(0, 0),
-                new Vector2(Ball.BallSpeedX, Ball.BallSpeedY));            
+                new Vector2(Ball.BallSpeedX, Ball.BallSpeedY));
 
         _ball.SetColor(Color.Red);
+        _ball.SoloMovementDependency(new BallMain());
+
         //El audio de la partida vive en PongAudio, no en la pelota
         _pongAudio = new PongAudio(
             new BallSound(Game.Content.Load<SoundEffect>(@"Audio/paddleSound")),
             new BallSound(Game.Content.Load<SoundEffect>(@"Audio/wallSound")),
             new BallSound(Game.Content.Load<SoundEffect>(@"Audio/cheer")));
-        _ball.SoloMovementDependency(new BallMain());
+
+        //La pantalla construye; la sesion coordina
+        _match = new MatchSession(_ball, _player, _player2, _pongAudio, Game.Window.ClientBounds);
     }
-    
+
     private void LoadContentFont()
     {
         //Load Fuente de Letras
@@ -214,7 +176,7 @@ public class SpriteManager : DrawableGameComponent {
 
     private void LoadContentMusic() {
         //Load Musica
-        _music = Game.Content.Load<Song>(@"Audio/inspace");            
+        _music = Game.Content.Load<Song>(@"Audio/inspace");
         MediaPlayer.IsRepeating = true;
         MediaPlayer.Volume = 0.3f;
     }
@@ -230,59 +192,40 @@ public class SpriteManager : DrawableGameComponent {
 
         _whiteRectangle.SetData<Color>(data);
     }
-    
+
     public override void Update(GameTime gameTime)
     {
-        Execute(_inputReader.ReadAction(_gameState.GetGameState(), () => EscapeMenu.Update()));
-        if (_gameState.GetGameState() == GameStates.Stop)
+        Execute(_inputReader.ReadAction(_match.State, () => EscapeMenu.Update()));
+        if (_match.State == GameStates.Stop)
         {
             // Los efectos de fin de partida solo se muestran en Stop: avanzan solo alli
             _scWinScale.Advance();
             _scScoreScale.Advance();
             _ccWinnerColor.Advance();
         }
-        if (_gameState.GetGameState() == GameStates.Playing)// If the user hasn't paused, Update normally
-        {
-            //Update movement
-            _ball.Update();            
-            _player.Update();
-            _player2.Update();
-            
-            //Sprites Collisions
-            ResolveCollisions();
-            UpdateScores();
-        }
+        if (_match.State == GameStates.Playing)// If the user hasn't paused, Update normally
+            _match.SimulateFrame(Game.Window.ClientBounds);
     }
 
     private void Execute(GameAction action)
     {
         switch (action)
         {
-            case GameAction.StartMatch:
-                _gameState.Play();
-                break;
-            case GameAction.Pause:
-                _gameState.Pause();
-                break;
-            case GameAction.Resume:
-                _gameState.Resume();
-                break;
-            case GameAction.PrepareNextRound:
-                _gameState.PrepareNextRound();
-                if (IsMatchOver)
-                    Begin();
-                else{
-                    reset_soundEffects();
-                    ResetPosition();
-                    StartNextRound();
-                }
-                break;
             case GameAction.OpenExitMenu:
-                _gameState.OpenExitMenu();
+                _match.OpenExitMenu();
                 _inputReader.ResetGracePeriod();
                 break;
+            case GameAction.PrepareNextRound:
+                _match.Execute(action);
+                if (_match.IsMatchOver)
+                {
+                    MediaPlayer.Stop();
+                    MediaPlayer.Play(_music);
+                    EscapeMenu.Initialize();
+                }
+                break;
             case GameAction.ContinueGame:
-                _gameState.ResumeFromExitMenu();
+                _match.Execute(action);
                 EscapeMenu.InputManager.Exit();
                 break;
             case GameAction.ReturnToMainMenu:
@@ -294,85 +237,57 @@ public class SpriteManager : DrawableGameComponent {
             case GameAction.QuitGame:
                 Game.Exit();
                 break;
+            default:
+                _match.Execute(action); // StartMatch, Pause, Resume
+                break;
         }
-    }
-
-    private void ResolveCollisions()
-    {
-        _collisionManager.ResolvePaddleBoundary(_player, Game.Window.ClientBounds);
-        _collisionManager.ResolvePaddleBoundary(_player2, Game.Window.ClientBounds);
-
-        CollisionSound sound;
-        if (_ball.Direction.X > 0)
-            sound = _collisionManager.ResolveBallPaddle(_ball, _player2);// Right Paddle (Player 2)
-        else if (_ball.Direction.X < 0)
-            sound = _collisionManager.ResolveBallPaddle(_ball, _player);// Left Paddle (Player 1)
-        else
-            sound = CollisionSound.None;
-
-        BallBoundaryOutcome boundary = _collisionManager.ResolveBallBoundary(_ball, Game.Window.ClientBounds);
-        sound |= boundary.Sound;
-        if (boundary.Scorer != PlayerId.None)
-            _matchScore.AwardPoint(boundary.Scorer);
-
-        // Orden historico de audio: pala, puntuacion, muro
-        if (sound.HasFlag(CollisionSound.Paddle))
-            _pongAudio.PlayPaddle();
-        if (sound.HasFlag(CollisionSound.Score))
-            _pongAudio.PlayScore();
-        if (sound.HasFlag(CollisionSound.Wall))
-            _pongAudio.PlayWall();
-    }
-    private void UpdateScores() {
-        if (_matchScore.LastPointWinner != PlayerId.None)
-            _gameState.EndRound();//enter to stop state
     }
 
     public override void Draw(GameTime gameTime)
     {
-        _spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);            
+        _spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
         // Draw the player
-        _player.Draw(gameTime,_spriteBatch);
-        _player2.Draw(gameTime,_spriteBatch);
+        _match.Player1.Draw(gameTime,_spriteBatch);
+        _match.Player2.Draw(gameTime,_spriteBatch);
         // Draw all sprites
-        if (GameStates.ExitMenu != _gameState.GetGameState()){
-            _ball.Draw(gameTime,_spriteBatch);
+        if (GameStates.ExitMenu != _match.State){
+            _match.Ball.Draw(gameTime,_spriteBatch);
             DrawRectangles();
         }
         else EscapeMenu.Draw(null, _spriteBatch);
-            
+
         DrawScores(_spriteBatch);
         _spriteBatch.End();
-    }        
-        
+    }
+
     private void DrawScores(SpriteBatch spriteBatch) {
         float winScale = 0.6f; // El score en numeros GRANDES
         float score_scale = 1.0f;
 
-        spriteBatch.DrawString(_fontScore,ScoreString + _matchScore.Player1,new Vector2(100, 10), Color.White);
-        spriteBatch.DrawString(_fontScore,ScoreString + _matchScore.Player2,new Vector2(Game.Window.ClientBounds.Width - 200, 10), Color.White);
+        spriteBatch.DrawString(_fontScore,ScoreString + _match.Score.Player1,new Vector2(100, 10), Color.White);
+        spriteBatch.DrawString(_fontScore,ScoreString + _match.Score.Player2,new Vector2(Game.Window.ClientBounds.Width - 200, 10), Color.White);
 
-        if (_gameState.GetGameState() == GameStates.Stop)
+        if (_match.State == GameStates.Stop)
         {
             Color winner_color = _ccWinnerColor.Current;
             winScale    = _scWinScale.Current;  //Alterna cada 10 frames (0.6f, 0.57f)
             score_scale = _scScoreScale.Current; //Alterna cada 10 frames (1.0f, 1.2f)
 
-            if (_matchScore.MatchWinner != PlayerId.None) {
-                string winner = _matchScore.MatchWinner == PlayerId.Player1 ? "1" : "2";
+            if (_match.Score.MatchWinner != PlayerId.None) {
+                string winner = _match.Score.MatchWinner == PlayerId.Player1 ? "1" : "2";
                 spriteBatch.DrawString(_greatScore, "PLAYER " + winner + "\n WINS",
                                        _pcWinner.VectorSwitch(IsNear(winScale, 0.57f)), winner_color, 0,
                                        Vector2.Zero, winScale, SpriteEffects.None, 0);
             }
             else{
-                DrawScoreCounters(_matchScore.LastPointWinner == PlayerId.Player1, "" + _matchScore.Player1,
+                DrawScoreCounters(_match.Score.LastPointWinner == PlayerId.Player1, "" + _match.Score.Player1,
                     _pcScoreCounter1, winner_color, score_scale, 1.2f);
-                DrawScoreCounters(_matchScore.LastPointWinner == PlayerId.Player2, "" + _matchScore.Player2,
+                DrawScoreCounters(_match.Score.LastPointWinner == PlayerId.Player2, "" + _match.Score.Player2,
                     _pcScoreCounter2, winner_color, score_scale, 1.2f);
             }
         }
-        else if (_gameState.GetGameState() == GameStates.Paused)             
-            spriteBatch.DrawString(_greatScore, Pause, new Vector2(200, 200), Color.Yellow);            
+        else if (_match.State == GameStates.Paused)
+            spriteBatch.DrawString(_greatScore, Pause, new Vector2(200, 200), Color.Yellow);
     }
 
     void DrawScoreCounters(bool isWinner, string playerScore, PositionChanger2 pos, Color winner_color,
@@ -386,23 +301,16 @@ public class SpriteManager : DrawableGameComponent {
     }
 
     private static bool IsNear(float a, float b) => MathF.Abs(a - b) < 0.0001f;
-    
+
     //funcion para crear las lineas del medio
-    private void DrawRectangles() {            
+    private void DrawRectangles() {
         for (int i = 0, k = 0; i < 9; ++i, k += 55)
             _spriteBatch.Draw(_whiteRectangle,
-                            new Vector2((Game.Window.ClientBounds.Width / 2) - _whiteRectangle.Width / 2, k), 
-                            Color.White); 
+                            new Vector2((Game.Window.ClientBounds.Width / 2) - _whiteRectangle.Width / 2, k),
+                            Color.White);
     }
-    
 
     //PROPERTIES
-
-    public bool IsMatchOver => _matchScore.MatchWinner != PlayerId.None;
-
-    public void StartNextRound() => _matchScore.StartNextRound();
-
-    public GameStateController getGameStateController => _gameState;
 
     internal MenuSimple EscapeMenu { get; set; }
 }
