@@ -90,6 +90,23 @@ public class CollisionDetectionTests
         Assert.Equal(expected, MathHelper.Angle(0f, 0f, 0f, deltaY));
     }
 
+    [Theory]
+    [InlineData(89, true, true)]
+    [InlineData(88, false, false)]
+    [InlineData(100, true, false)]
+    [InlineData(130, true, false)]
+    [InlineData(131, true, true)]
+    [InlineData(159, true, true)]
+    [InlineData(160, false, false)]
+    public void BallPaddle_ClassifiesBorderContact(int ballY, bool hit, bool borderContact)
+    {
+        var contact = CollisionBallPaddle.Detect(
+            new Rectangle(90, ballY, 12, 12), new Rectangle(100, 100, 15, 60));
+
+        Assert.Equal(hit, contact.Hit);
+        Assert.Equal(borderContact, contact.IsBorderContact);
+    }
+
     // ---- CollisionBallWall ----
 
     [Fact]

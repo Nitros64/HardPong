@@ -9,7 +9,8 @@ internal readonly record struct BallPaddleContact(
     Rectangle BallRect,
     Rectangle PaddleRect,
     float Angle,
-    float Slope);
+    float Slope,
+    bool IsBorderContact);
 
 internal readonly record struct BallBoundaryContact(
     bool OutLeft,

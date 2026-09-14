@@ -35,6 +35,38 @@ public class CollisionResponseTests
         }
     }
 
+    [Theory]
+    [InlineData(89, true, true)]
+    [InlineData(88, false, false)]
+    [InlineData(100, true, false)]
+    [InlineData(130, true, false)]
+    [InlineData(131, true, true)]
+    [InlineData(159, true, true)]
+    [InlineData(160, false, false)]
+    public void PaddleImpact_RestoresPreviousPositionOnlyForExistingBorderCases(
+        int ballY, bool hit, bool restorePosition)
+    {
+        foreach (int axis in new[] { -1, 1 })
+        {
+            var spawn = new Vector2(100, 100 - axis * Paddle.BrickSpeedY);
+            var paddle = new Paddle(spawn, new MovingController(axis));
+            paddle.Update();
+            var movedPosition = paddle.Position;
+            var ball = new Ball(new Rectangle(0, 0, 800, 480));
+            ball.SetPosition(90, ballY);
+
+            var events = new CollisionDetector().ResolveBallPaddle(ball, paddle);
+
+            Assert.Equal(hit ? CollisionEvents.PaddleHit : CollisionEvents.None, events);
+            Assert.Equal(restorePosition ? spawn : movedPosition, paddle.Position);
+        }
+    }
+
+    private sealed class MovingController(float axis) : IPaddleController
+    {
+        public float ReadMovementAxis() => axis;
+    }
+
     private sealed class StationaryController : IPaddleController
     {
         public float ReadMovementAxis() => 0f;

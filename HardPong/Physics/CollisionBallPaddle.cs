@@ -16,6 +16,13 @@ internal static class CollisionBallPaddle
                         paddleRect.X + paddleRect.Width / 2, paddleRect.Y + paddleRect.Height / 2,
                         out m);
 
-        return new BallPaddleContact(true, ballRect, paddleRect, angle, m);
+        return new BallPaddleContact(true, ballRect, paddleRect, angle, m,
+            IsBorderContact(ballRect, paddleRect));
+    }
+
+    private static bool IsBorderContact(Rectangle ball, Rectangle paddle)
+    {
+        return (paddle.Y + paddle.Height >= ball.Y && ball.Y > paddle.Y + paddle.Height / 2)
+            || (paddle.Y <= ball.Y + ball.Height && paddle.Y > ball.Y);
     }
 }

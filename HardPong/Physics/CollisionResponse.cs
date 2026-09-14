@@ -28,20 +28,10 @@ internal class CollisionResponse
 
         // si la pelota ha tocado los bordes el brick no bajara o subira
         //(Garantiza la no penetracion de la bola a traves de los ladrillos)
-        if (BallBorderCollision(rectBall, rectPaddle))
+        if (contact.IsBorderContact)
             paddle.GetBackToOldPosition();
 
         return CollisionEvents.PaddleHit;
-    }
-
-    private static bool BallBorderCollision(Rectangle ball, Rectangle paddle)
-    {
-        if (paddle.Y + paddle.Height >= ball.Y && ball.Y > paddle.Y + paddle.Height / 2)//bajando
-            return true;
-        else if (paddle.Y <= ball.Y + ball.Height && paddle.Y > ball.Y) //subiendo
-            return true;
-
-        return false;
     }
 
     public BallBoundaryOutcome ResolveBallBoundary(Ball ball, in BallBoundaryContact contact, Rectangle bounds)
