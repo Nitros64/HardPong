@@ -16,7 +16,7 @@ internal class MenuSimple
 
     private SelectArrow _selectArrow;
     private readonly string[] _options;        
-    private int _menuOption;
+    private readonly MenuSelection _selection;
     private readonly Vector2 _startlocation;// la localizacion del menu, incluyendo la flecha seleccionadora
     private Vector2 _optionsLocation;//Location of the tittles
 
@@ -39,12 +39,13 @@ internal class MenuSimple
             throw new ArgumentException("MenuSimple requiere al menos una opcion.", nameof(ops));
 
         _options = ops;
+        _selection = new MenuSelection(ops.Length);
     }
 
     public void Initialize()
     {
         _selectArrow.SetPosition(_startlocation.X, _startlocation.Y);
-        _menuOption = 0;
+        _selection.Reset();
     }
     public void LoadContent(SpriteFont sf, Texture2D arrowSprite, SoundEffect arrowSound) 
     {
@@ -57,22 +58,22 @@ internal class MenuSimple
         //Chequea si la posicion de la flecha ha cambiado
         if (InputManager.CheckPressedKey(Up)) // Flecha Para arriba
         {
-            _menuOption = (--_menuOption < 0) ? _options.Length - 1 : _menuOption;
-            _selectArrow.SetPosition(_startlocation.X, _startlocation.Y + 30 * _menuOption);
+            _selection.MovePrevious();
+            _selectArrow.SetPosition(_startlocation.X, _startlocation.Y + 30 * _selection.SelectedIndex);
             _selectArrow.PlaySelectionSound();
         }
         else if (InputManager.CheckPressedKey(Down) ||
                  InputManager.CheckPressedKey(Select)) // Flecha Para Abajo
         {
-            _menuOption = (_menuOption + 1) % _options.Length;
-            _selectArrow.SetPosition(_startlocation.X, _startlocation.Y + 30 * _menuOption);
+            _selection.MoveNext();
+            _selectArrow.SetPosition(_startlocation.X, _startlocation.Y + 30 * _selection.SelectedIndex);
             _selectArrow.PlaySelectionSound();
         }
         //Chequea si se ha presionado la tecla Escape o Enter
         if (InputManager.CheckPressedKey(Start))
         {
             InputManager.End();
-            return _menuOption + 1;
+            return _selection.SelectedIndex + 1;
         }
 
         if (InputManager.CheckPressedKey(Escape))
