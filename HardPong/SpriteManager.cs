@@ -29,6 +29,9 @@ public class SpriteManager : DrawableGameComponent {
     //Audio de la partida
     private PongAudio _pongAudio;
 
+    //Render de la pelota
+    private SpriteRenderer _ballRenderer;
+
     //Fuentes para las letras
     private SpriteFont _fontScore;
     private SpriteFont _greatScore;
@@ -144,24 +147,16 @@ public class SpriteManager : DrawableGameComponent {
 
         _player2.PlayerNumber = 2;
 
-        _ball = new Ball(
-                Game.Content.Load<Texture2D>(@"Images/circulo"),
-                new Vector2(Game.Window.ClientBounds.Width / 2 - Ball.BallWidth / 2,
-                            Game.Window.ClientBounds.Height / 2 - Ball.BallHeight / 2), //Position X,Y
-                new Point(Ball.BallWidth, Ball.BallHeight), //ball width and height
-                0, //Colisionador
-                new Point(0, 0),
-                new Point(0, 0),
-                new Vector2(Ball.BallSpeedX, Ball.BallSpeedY));
-
-        _ball.SetColor(Color.Red);
-        _ball.SoloMovementDependency(new BallMain());
+        _ball = new Ball(Game.Window.ClientBounds);
 
         //El audio de la partida vive en PongAudio, no en la pelota
         _pongAudio = new PongAudio(
             new BallSound(Game.Content.Load<SoundEffect>(@"Audio/paddleSound")),
             new BallSound(Game.Content.Load<SoundEffect>(@"Audio/wallSound")),
             new BallSound(Game.Content.Load<SoundEffect>(@"Audio/cheer")));
+
+        //El render usa la textura; la fisica no
+        _ballRenderer = new SpriteRenderer(Game.Content.Load<Texture2D>(@"Images/circulo"), Color.Red);
 
         //La pantalla construye; la sesion coordina
         _match = new MatchSession(_ball, _player, _player2, _pongAudio, Game.Window.ClientBounds);
@@ -251,7 +246,7 @@ public class SpriteManager : DrawableGameComponent {
         _match.Player2.Draw(gameTime,_spriteBatch);
         // Draw all sprites
         if (GameStates.ExitMenu != _match.State){
-            _match.Ball.Draw(gameTime,_spriteBatch);
+            _ballRenderer.Draw(_match.Ball.Position, _spriteBatch);
             DrawRectangles();
         }
         else EscapeMenu.Draw(null, _spriteBatch);

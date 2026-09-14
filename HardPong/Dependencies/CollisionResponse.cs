@@ -15,7 +15,7 @@ internal class CollisionResponse
         float angle = contact.Angle;
         float m = contact.Slope;
 
-        ball.Direction = new Vector2((angle / 10), m);
+        ball.SetDirection(new Vector2((angle / 10), m));
 
         if (angle >= 70)
             ball.ChangeDirection();
@@ -23,9 +23,9 @@ internal class CollisionResponse
             ball.InvertDirectionHorizontal();//invierte el desplzamiento horizontal
 
         if (rectBall.Y + rectBall.Height >= rectPaddle.Y && rectBall.Y + rectBall.Height < rectPaddle.Y + 10) // 7 es el original
-            ball.SpritePosition = new Vector2(rectBall.X, rectPaddle.Y - rectBall.Height);
+            ball.Position = new Vector2(rectBall.X, rectPaddle.Y - rectBall.Height);
         else if (rectBall.Y < rectPaddle.Y + rectPaddle.Height && rectBall.Y >= rectPaddle.Y + rectPaddle.Height - 10)
-            ball.SpritePosition = new Vector2(rectBall.X, rectPaddle.Y + rectPaddle.Height);
+            ball.Position = new Vector2(rectBall.X, rectPaddle.Y + rectPaddle.Height);
 
         // si la pelota ha tocado los bordes el brick no bajara o subira
         //(Garantiza la no penetracion de la bola a traves de los ladrillos)
@@ -53,27 +53,27 @@ internal class CollisionResponse
 
         if (contact.OutRight)
         {//Pierde el jugador izquierdo
-            ball.PositionX = bounds.Width - rectball.Width;
+            ball.Position = new Vector2(bounds.Width - rectball.Width, ball.Position.Y);
             ball.InvertDirectionHorizontal();//Invertir direccion Horizontal
             scorer = PlayerId.Player1;
             sound |= CollisionSound.Score;
         }
         else if (contact.OutLeft)
         {//Pierde el jugador derecho
-            ball.PositionX = 0;
+            ball.Position = new Vector2(0, ball.Position.Y);
             ball.InvertDirectionHorizontal();
             scorer = PlayerId.Player2;
             sound |= CollisionSound.Score;
         }
         if (contact.OutBottom)
         {
-            ball.PositionY = bounds.Height - ball.SpriteFrameSize.Y;
+            ball.Position = new Vector2(ball.Position.X, bounds.Height - Ball.BallHeight);
             ball.InvertDirectionVertical();
             sound |= CollisionSound.Wall;
         }
         else if (contact.OutTop)
         {
-            ball.PositionY = 0;
+            ball.Position = new Vector2(ball.Position.X, 0);
             ball.InvertDirectionVertical();
             sound |= CollisionSound.Wall;
         }
