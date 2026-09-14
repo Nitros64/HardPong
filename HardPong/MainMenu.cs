@@ -57,15 +57,19 @@ public class MainMenu : DrawableGameComponent {
 
     protected override void LoadContent()
     {
+        // La pantalla puede re-entrar: libera lo manual previo antes de recrear
+        _spriteBatch?.Dispose();
         _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
         _nesFont = Game.Content.Load<SpriteFont>(@"Font/NESfont");
-        _nesFont2 = Game.Content.Load<SpriteFont>(@"Font/NESfont2");            
-            
+        _nesFont2 = Game.Content.Load<SpriteFont>(@"Font/NESfont2");
+
         //Load Musica
         _music = Game.Content.Load<Song>(@"Audio/dinothunder");
         MediaPlayer.IsRepeating = true;
         MediaPlayer.Volume = 0.3f;
 
+        //Las bolas decorativas se regeneran en cada entrada
+        _randomBalls.Clear();
         Random random = new Random(); // generador de números aleatorios
         for (int cont = 0; cont < 30; ++cont) {
             int randomlocationX = random.Next(50, 590);

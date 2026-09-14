@@ -105,6 +105,9 @@ public class SpriteManager : DrawableGameComponent {
 
     protected override void LoadContent()
     {
+        // La pantalla puede re-entrar: libera lo manual previo antes de recrear
+        ReleaseOwnResources();
+
         _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
         LoadContentSprites(); //Load Sprites
         LoadContentFont();  //Load Font
@@ -116,11 +119,19 @@ public class SpriteManager : DrawableGameComponent {
                                Game.Content.Load<SoundEffect>(@"Audio/laser-shoot"));
     }
 
-    protected override void UnloadContent()
+    protected override void UnloadContent() => ReleaseOwnResources();
+
+    private void ReleaseOwnResources()
     {
         // Solo recursos creados a mano; lo cargado via ContentManager lo libera el framework.
+        _spriteBatch?.Dispose();
+        _spriteBatch = null;
         _whiteRectangle?.Dispose();
+        _whiteRectangle = null;
         _pongAudio?.Dispose();
+        _pongAudio = null;
+        _ballRenderer = null;
+        _paddleRenderer = null;
     }
 
     private void LoadContentSprites() {
